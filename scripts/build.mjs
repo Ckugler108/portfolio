@@ -33,17 +33,21 @@ const projects = (await Promise.all(projectFiles.map((f) => readJson(`content/pr
 const img = (src) => String(src || '').replace(/^\/?(images\/)?/, '');
 for (const p of projects) {
   p.tools = Array.isArray(p.tools) ? p.tools : String(p.tools || '').split(',').map((t) => t.trim()).filter(Boolean);
-  p.stills = (p.stills || []).map((s) => ({ ...s, src: img(s.src) }));
-  // Breakdown: "before" (plate) and "after" (final), plus optional extra passes.
-  // Kept internally as [before, after, ...passes].
-  const b = p.breakdown || {};
-  const layer = (x, label) => x && x.src ? { label: x.label || label, src: img(x.src), alt: x.alt || '' } : null;
-  const before = layer(b.before, 'Plate');
-  const after = layer(b.after, 'Final');
-  p._bdError = (before && !after) || (!before && after);
-  p.breakdownLayers = before && after
-    ? [before, after, ...(b.passes || []).map((x) => layer(x, 'Pass')).filter(Boolean)]
-    : [];
+  // Each frame can carry its own breakdown: a "before" (usually the plate) and optional extra
+  // passes. The frame itself is the "after". Kept internally as s.layers = [before, frame, ...passes].
+  const layer = (x, label) => (x && x.src ? { label: x.label || label, src: img(x.src), alt: x.alt || '' } : null);
+  p.stills = (p.stills || []).map((st) => {
+    const s = { ...st, src: img(st.src) };
+    const b = st.breakdown || {};
+    const before = layer(b.before, 'Plate');
+    s.layers = before
+      ? [before, { label: b.afterLabel || 'Final', src: s.src, alt: s.alt || '' }, ...(b.passes || []).map((x) => layer(x, 'Pass')).filter(Boolean)]
+      : [];
+    return s;
+  });
+  // The frame used for the home page's before/after card: the featured one if it has a breakdown.
+  p.bdIndex = [p.stills.findIndex((s) => s.featured && s.layers.length), p.stills.findIndex((s) => s.layers.length)].find((k) => k >= 0) ?? -1;
+  p.breakdownLayers = p.bdIndex >= 0 ? p.stills[p.bdIndex].layers : [];
 }
 
 // Reel: paste any Vimeo or YouTube link; provider + id are worked out here.
@@ -70,7 +74,6 @@ projects.forEach((p, i) => {
   if (!Array.isArray(p.tools)) errors.push(`${at}: "tools" must be an array`);
   if (!Array.isArray(p.stills) || !p.stills.length) errors.push(`${at}: needs at least one still`);
   for (const s of p.stills || []) if (!s.src || typeof s.alt !== 'string') errors.push(`${at}: every still needs "src" and "alt"`);
-  if (p._bdError) errors.push(`${at}: the breakdown needs both a "before" and an "after" image (or neither)`);
 });
 if (errors.length) {
   console.error('content errors:\n  ' + errors.join('\n  '));
@@ -82,7 +85,7 @@ if (!site.reel) console.warn('note: no reel link set in content/site.json (the W
 const imageSrcs = new Set();
 for (const p of projects) {
   p.stills.forEach((s) => imageSrcs.add(s.src));
-  (p.breakdownLayers || []).forEach((l) => imageSrcs.add(l.src));
+  p.stills.forEach((s) => s.layers.forEach((l) => imageSrcs.add(l.src)));
 }
 if (site.reel?.poster) imageSrcs.add(site.reel.poster);
 
@@ -126,16 +129,18 @@ const t0 = Date.now();
 const encodedCount = await pool(imageSrcs, 4, processImage);
 console.log(`images: ${imageSrcs.size} sources, ${encodedCount} files encoded (${((Date.now() - t0) / 1000).toFixed(1)}s)`);
 
-// Breakdown layers are stacked for the wipe, so every layer must share the first one's shape.
+// Breakdown images are stacked for the wipe, so each must match its frame's shape.
 for (const p of projects) {
-  const L = p.breakdownLayers;
-  if (L.length < 2) continue;
-  const ratio = (src) => manifest[src].width / manifest[src].height;
-  const bad = L.filter((l) => Math.abs(ratio(l.src) - ratio(L[0].src)) > 0.01);
-  if (bad.length) {
-    console.error(`content error in ${p._file}: breakdown images must all be the same size as "${L[0].label}" (${manifest[L[0].src].width}×${manifest[L[0].src].height}). Different: ${bad.map((l) => `"${l.label}" (${manifest[l.src].width}×${manifest[l.src].height})`).join(', ')}`);
-    process.exit(1);
-  }
+  p.stills.forEach((st, k) => {
+    const L = st.layers;
+    if (L.length < 2) return;
+    const ratio = (src) => manifest[src].width / manifest[src].height;
+    const bad = L.filter((l) => Math.abs(ratio(l.src) - ratio(st.src)) > 0.01);
+    if (bad.length) {
+      console.error(`content error in ${p._file}, frame ${k + 1}: breakdown images must be the same size as the frame (${manifest[st.src].width}×${manifest[st.src].height}). Different: ${bad.map((l) => `"${l.label}" (${manifest[l.src].width}×${manifest[l.src].height})`).join(', ')}`);
+      process.exit(1);
+    }
+  });
 }
 
 
@@ -255,7 +260,7 @@ ${picture(keyStill(p).src, root, { alt: '', sizes: '(min-width: 768px) 288px, 78
 function splitCard(p, root) {
   const L = p.breakdownLayers;
   const sizes = '(min-width: 768px) 360px, 82vw';
-  return `<a class="card split" href="${projHref(root, p)}#breakdown">
+  return `<a class="card split" href="${projHref(root, p)}#frame-${p.bdIndex + 1}">
 ${picture(L[1].src, root, { alt: '', sizes })}
 <span class="split-before">${picture(L[0].src, root, { alt: '', sizes })}</span>
 <span class="split-line" aria-hidden="true"></span>
@@ -374,38 +379,53 @@ ${rows}
 // ---------- project ----------
 function projectPage(p, i) {
   const root = '../../';
-  const layers = p.breakdownLayers || [];
   const others = [...projects.slice(i + 1), ...projects.slice(0, i)];
 
-  const gallery = `<section class="section p-top" aria-labelledby="fr-h">
-<div class="section-head"><h2 id="fr-h">Frames</h2><span class="count">${plural(p.stills.length, 'still')}</span></div>
-<div class="gallery g-${Math.min(p.stills.length, 3)}">
-${p.stills.map((s, k) => `<a class="still" href="${largestJpg(s.src, root)}" data-lb aria-label="Open frame ${k + 1} of ${p.stills.length} full size">${picture(s.src, root, { alt: s.alt, sizes: p.stills.length === 1 ? '(min-width: 1024px) 960px, 100vw' : p.stills.length === 2 ? '(min-width: 1560px) 724px, (min-width: 640px) 50vw, 100vw' : '(min-width: 1100px) 480px, (min-width: 640px) 50vw, 100vw', eager: k === 0 })}</a>`).join('\n')}
-</div>
-</section>`;
-
-  let breakdown = '';
-  if (layers.length >= 2) {
-    const l0 = manifest[layers[0].src];
-    const passes = layers.length > 2;
-    breakdown = `<section id="breakdown" class="section" aria-labelledby="bd-h" data-breakdown>
-<div class="section-head"><h2 id="bd-h">Breakdown</h2><span class="count">${esc(layers[0].label)} / ${esc(layers[1].label)}${passes ? ` + ${plural(layers.length - 2, 'pass', 'passes')}` : ''}</span></div>
+  // One viewer for all frames. A frame with a breakdown shows the before/after slider;
+  // one without shows the plain frame. Thumbnails underneath switch frames.
+  const n = p.stills.length;
+  const withBd = p.stills.filter((st) => st.layers.length).length;
+  const sizesView = '(min-width: 1560px) 1216px, calc(100vw - 64px)';
+  const panel = (st, k) => {
+    const L = st.layers;
+    const m = manifest[st.src];
+    const full = `<a class="full-link" href="${largestJpg(st.src, root)}" data-lb data-i="${k}">View full size</a>`;
+    if (L.length < 2) {
+      return `<div class="frame-panel${k === 0 ? ' is-on' : ''}" id="frame-${k + 1}" data-panel="${k}">
+<div class="bd-panel"><div class="bd-view">
+<a class="still" href="${largestJpg(st.src, root)}" aria-label="Open frame ${k + 1} full size" data-lb-proxy="${k}" style="--ar:${(m.width / m.height).toFixed(4)}">${picture(st.src, root, { alt: st.alt, sizes: sizesView, eager: k === 0 })}</a>
+<p class="frame-meta"><span>${n > 1 ? `Frame ${k + 1} of ${n}` : 'Final frame'}${st.caption ? ` · ${esc(st.caption)}` : ''}</span>${full}</p>
+</div></div>
+</div>`;
+    }
+    const passes = L.length > 2;
+    return `<div class="frame-panel${k === 0 ? ' is-on' : ''}" id="frame-${k + 1}" data-panel="${k}" data-breakdown>
 <div class="bd-panel${passes ? ' has-passes' : ''}">
-${passes ? `<div class="tabs" role="group" aria-label="Compare ${esc(layers[0].label)} with">
-${layers.slice(1).map((l, k) => `<button type="button" data-layer data-i="${k + 1}" aria-pressed="${k === 0}">${esc(l.label)}</button>`).join('\n')}
+${passes ? `<div class="tabs" role="group" aria-label="Compare ${esc(L[0].label)} with">
+${L.slice(1).map((l, j) => `<button type="button" data-layer data-i="${j + 1}" aria-pressed="${j === 0}">${esc(l.label)}</button>`).join('\n')}
 </div>` : ''}
 <div class="bd-view">
-<div class="wipe" style="--ar:${l0.width} / ${l0.height}">
-${layers.map((l) => `<figure class="wipe-layer" data-label="${esc(l.label)}">${picture(l.src, root, { alt: l.alt || l.label, sizes: '(min-width: 1560px) 1216px, calc(100vw - 64px)' })}<figcaption>${esc(l.label)}</figcaption></figure>`).join('\n')}
+<div class="wipe" style="--ar:${m.width} / ${m.height}">
+${L.map((l, j) => `<figure class="wipe-layer" data-label="${esc(l.label)}">${picture(l.src, root, { alt: l.alt || l.label, sizes: sizesView, eager: k === 0 && j < 2 })}<figcaption>${esc(l.label)}</figcaption></figure>`).join('\n')}
 <span class="tag wipe-tag a" aria-hidden="true"></span><span class="tag wipe-tag b" aria-hidden="true"></span>
 <div class="wipe-handle" role="slider" tabindex="0" aria-label="Wipe position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span class="wipe-knob">${icon.drag}</span></div>
 </div>
-<p class="wipe-hint">Drag across the frame to compare.${passes ? ' Pick a pass to change the right side.' : ''}</p>
+<p class="frame-meta"><span>${n > 1 ? `Frame ${k + 1} of ${n} · ` : ''}${esc(L[0].label)} / ${esc(L[1].label)}${passes ? ` + ${plural(L.length - 2, 'pass', 'passes')}` : ''}. <span class="wipe-hint">Drag across the frame to compare.</span></span>${full}</p>
 </div>
 <p class="vh" aria-live="polite" data-live></p>
 </div>
+</div>`;
+  };
+  const gallery = `<section id="frames" class="section p-top" aria-labelledby="fr-h" data-frames>
+<div class="section-head"><h2 id="fr-h">Frames</h2><span class="count">${plural(n, 'frame')}${withBd ? ` · ${withBd === n && n > 1 ? 'all with' : withBd + ' with'} breakdown${withBd > 1 && withBd !== n ? 's' : ''}` : ''}</span></div>
+<div class="viewer">
+${p.stills.map(panel).join('\n')}
+</div>
+${n > 1 ? `<div class="thumbs" role="group" aria-label="Choose a frame">
+${p.stills.map((st, k) => `<button type="button" class="thumb" data-show="${k}" aria-pressed="${k === 0}" aria-label="Frame ${k + 1}${st.layers.length ? ', Before / after' : ''}">${picture(st.src, root, { alt: '', sizes: '160px' })}${st.layers.length ? '<span class="tag">Before / after</span>' : ''}</button>`).join('\n')}
+</div>` : ''}
 </section>`;
-  }
+  const breakdown = '';
 
   const details = [['Role', esc(p.role)], ['Studio', esc(p.studio)], ['Year', esc(p.year)],
     ['Tools', `<ul class="chips">${p.tools.map((t) => `<li class="chip">${esc(t)}</li>`).join('')}</ul>`]]

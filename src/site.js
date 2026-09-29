@@ -120,10 +120,30 @@
     }
   }
 
-  // ---------- Lightbox for project stills ----------
+  // ---------- Frames viewer: thumbnails switch the frame (and its breakdown) ----------
+  for (const root of document.querySelectorAll('[data-frames]')) {
+    const panels = [...root.querySelectorAll('[data-panel]')];
+    const thumbs = [...root.querySelectorAll('[data-show]')];
+    const select = (k) => {
+      panels.forEach((p, i) => p.classList.toggle('is-on', i === k));
+      thumbs.forEach((t, i) => t.setAttribute('aria-pressed', String(i === k)));
+    };
+    thumbs.forEach((t, i) => t.addEventListener('click', () => select(i)));
+    // Links such as #frame-2 (from the home page's before/after cards) open that frame.
+    const fromHash = () => {
+      const m = location.hash.match(/^#frame-(\d+)$/);
+      if (!m || !panels[m[1] - 1]) return;
+      select(m[1] - 1);
+      root.scrollIntoView({ block: 'start' });
+    };
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
+  }
+
+  // ---------- Lightbox: full-size frames ----------
   const lb = document.getElementById('lightbox');
   if (lb) {
-    const links = [...document.querySelectorAll('[data-lb]')];
+    const links = [...document.querySelectorAll('[data-lb]')].sort((a, b) => a.dataset.i - b.dataset.i);
     const stage = lb.querySelector('.lb-stage');
     const counter = lb.querySelector('[data-lb-count]');
     const prev = lb.querySelector('[data-lb-prev]');
@@ -131,13 +151,18 @@
     let i = 0;
     const show = (n) => {
       i = (n + links.length) % links.length;
-      const pic = links[i].querySelector('picture').cloneNode(true);
-      pic.querySelectorAll('source, img').forEach((el) => { el.setAttribute('sizes', '100vw'); el.removeAttribute('loading'); });
-      stage.replaceChildren(pic);
-      counter.textContent = `${i + 1} / ${links.length}`;
+      const im = document.createElement('img');
+      im.src = links[i].href;
+      im.alt = '';
+      stage.replaceChildren(im);
+      counter.textContent = links.length > 1 ? `${i + 1} / ${links.length}` : '';
     };
+    const open = (k) => { show(k); lb.showModal(); };
     prev.hidden = next.hidden = links.length < 2;
-    links.forEach((a, k) => a.addEventListener('click', (e) => { e.preventDefault(); show(k); lb.showModal(); }));
+    links.forEach((a, k) => a.addEventListener('click', (e) => { e.preventDefault(); open(k); }));
+    for (const a of document.querySelectorAll('[data-lb-proxy]')) {
+      a.addEventListener('click', (e) => { e.preventDefault(); open(links.findIndex((l) => l.dataset.i === a.dataset.lbProxy)); });
+    }
     prev.addEventListener('click', () => show(i - 1));
     next.addEventListener('click', () => show(i + 1));
     lb.querySelector('.dlg-close').addEventListener('click', () => lb.close());

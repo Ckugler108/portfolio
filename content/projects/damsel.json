@@ -17,24 +17,24 @@
   "stills": [
     {
       "src": "/images/damsel/final-01.jpg",
-      "alt": "TODO alt: Dark volcanic cliffs lit from below by orange light."
+      "alt": "TODO alt: Dark volcanic cliffs lit from below by orange light.",
+      "breakdown": {
+        "before": {
+          "label": "Plate",
+          "src": "/images/damsel/final-01-plate.jpg"
+        },
+        "passes": [
+          {
+            "label": "Matte paint",
+            "src": "/images/damsel/final-01-matte.jpg"
+          }
+        ]
+      }
     },
     {
       "src": "/images/damsel/final-02.jpg",
       "alt": "TODO alt: Jagged rock spires in smoke."
     }
   ],
-  "breakdown": {
-    "before": {
-      "label": "Plate",
-      "src": "/images/damsel/bd-01-plate.jpg",
-      "alt": "Original plate: foreground rocks against bluescreen."
-    },
-    "after": {
-      "label": "Final",
-      "src": "/images/damsel/bd-05-final.jpg",
-      "alt": "Final composite with smoke and grade."
-    }
-  },
   "description": "TODO: Replace with 3–6 plain sentences in your own words. Describe the shot, what you built, and what was hard about it."
 }

@@ -17,24 +17,18 @@
   "stills": [
     {
       "src": "/images/avatar-the-last-airbender/final-01.jpg",
-      "alt": "TODO alt: Ice wall city under a pale sky."
+      "alt": "TODO alt: Ice wall city under a pale sky.",
+      "breakdown": {
+        "before": {
+          "label": "Plate",
+          "src": "/images/avatar-the-last-airbender/final-01-plate.jpg"
+        }
+      }
     },
     {
       "src": "/images/avatar-the-last-airbender/final-02.jpg",
       "alt": "TODO alt: Snowfield with distant ice walls."
     }
   ],
-  "breakdown": {
-    "before": {
-      "label": "Plate",
-      "src": "/images/avatar-the-last-airbender/bd-01-plate.jpg",
-      "alt": "Original plate: snow set piece against bluescreen."
-    },
-    "after": {
-      "label": "Final",
-      "src": "/images/avatar-the-last-airbender/bd-05-final.jpg",
-      "alt": "Final composite."
-    }
-  },
   "description": "TODO: Replace with 3–6 plain sentences in your own words. Describe the shot, what you built, and what was hard about it."
 }

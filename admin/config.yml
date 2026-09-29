@@ -87,7 +87,7 @@ collections:
         min: 1
         label_singular: frame
         summary: "{{fields.alt}}"
-        hint: Your best frames, full resolution (at least 2400 px wide if you have it). JPG or PNG.
+        hint: Your best frames, full resolution (JPG or PNG, ideally 2400 px wide or more). Each frame can have its own before/after breakdown; open the frame to add it.
         fields:
           - { label: Image, name: src, widget: image }
           - label: Description (alt text)
@@ -101,42 +101,37 @@ collections:
             default: false
             hint: Shown on the home page and the project's cards. Tick it on one frame per project.
           - { label: Caption, name: caption, widget: string, required: false }
-      - label: Breakdown
-        name: breakdown
-        widget: object
-        required: false
-        collapsed: false
-        hint: Optional. A before/after slider on the project page. All images here must be exactly the same size in pixels.
-        fields:
-          - label: Before
-            name: before
+          - label: Breakdown for this frame
+            name: breakdown
             widget: object
             required: false
-            hint: Usually the original plate.
+            collapsed: true
+            hint: Optional. Upload the Before (usually the plate) and the site shows a before/after slider for this frame. This frame is the After. Every image here must be exactly the same size in pixels as the frame.
             fields:
-              - { label: Image, name: src, widget: image, required: false }
-              - { label: Name, name: label, widget: string, default: Plate, required: false }
-              - { label: Description (alt text), name: alt, widget: string, required: false }
-          - label: After
-            name: after
-            widget: object
-            required: false
-            hint: Usually the final comp.
-            fields:
-              - { label: Image, name: src, widget: image, required: false }
-              - { label: Name, name: label, widget: string, default: Final, required: false }
-              - { label: Description (alt text), name: alt, widget: string, required: false }
-          - label: Other passes
-            name: passes
-            widget: list
-            required: false
-            label_singular: pass
-            summary: "{{fields.label}}"
-            hint: Optional extras such as Layout, CG render or Matte paint. Viewers can swap them in on the right side of the slider.
-            fields:
-              - { label: Name, name: label, widget: string, hint: "e.g. Layout, CG render, Matte paint" }
-              - { label: Image, name: src, widget: image }
-              - { label: Description (alt text), name: alt, widget: string, required: false }
+              - label: Before
+                name: before
+                widget: object
+                required: false
+                fields:
+                  - { label: Image, name: src, widget: image, required: false }
+                  - { label: Name, name: label, widget: string, default: Plate, required: false }
+                  - { label: Description (alt text), name: alt, widget: string, required: false }
+              - label: Name for this frame in the slider
+                name: afterLabel
+                widget: string
+                required: false
+                default: Final
+              - label: Other passes
+                name: passes
+                widget: list
+                required: false
+                label_singular: pass
+                summary: "{{fields.label}}"
+                hint: Optional extras such as Layout, CG render or Matte paint. Visitors can swap them in on the right side of the slider.
+                fields:
+                  - { label: Name, name: label, widget: string, hint: "e.g. Layout, CG render, Matte paint" }
+                  - { label: Image, name: src, widget: image }
+                  - { label: Description (alt text), name: alt, widget: string, required: false }
 
   - name: settings
     label: Site settings

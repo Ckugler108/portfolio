@@ -194,9 +194,12 @@ const dir = path.join(ROOT, 'content/projects');
 const projects = await Promise.all((await fs.readdir(dir)).filter((f) => f.endsWith('.json'))
   .map(async (f) => JSON.parse(await fs.readFile(path.join(dir, f), 'utf8'))));
 for (const p of projects) {
-  (p.stills || []).forEach((s) => { s.src = img(s.src); });
-  const b = p.breakdown || {};
-  p.breakdownLayers = [b.before, ...(b.passes || []), b.after].filter((x) => x && x.src).map((x) => ({ ...x, src: img(x.src) }));
+  (p.stills || []).forEach((st) => {
+    st.src = img(st.src);
+    const b = st.breakdown || {};
+    // A frame's breakdown images share the frame's composition (same seed) so the wipe lines up.
+    st.layers = [b.before, ...(b.passes || [])].filter((x) => x && x.src).map((x) => ({ ...x, src: img(x.src) }));
+  });
 }
 const site = JSON.parse(await fs.readFile(path.join(ROOT, 'content/site.json'), 'utf8'));
 
@@ -204,10 +207,10 @@ const jobs = [];
 for (const p of projects) {
   const s = SCENES[p.slug] || SCENES.site;
   p.stills.forEach((st, i) => jobs.push({ src: st.src, s, seed: `${p.slug}-still-${i}`, variant: 'final', label: `PLACEHOLDER  ${p.code || p.slug}  FINAL ${String(i + 1).padStart(2, '0')}` }));
-  (p.breakdownLayers || []).forEach((l, i) => {
-    const variant = ['plate', 'layout', 'render', 'matte', 'final'].find((v) => l.src.includes(v)) || 'final';
-    jobs.push({ src: l.src, s, seed: `${p.slug}-bd`, variant, label: `PLACEHOLDER  ${p.code || p.slug}  ${String(i + 1).padStart(2, '0')} ${l.label.toUpperCase()}` });
-  });
+  p.stills.forEach((st, i) => st.layers.forEach((l) => {
+    const variant = ['plate', 'layout', 'render', 'matte'].find((v) => l.src.includes(v)) || 'plate';
+    jobs.push({ src: l.src, s, seed: `${p.slug}-still-${i}`, variant, size: SIZE_OVERRIDE[st.src], label: '' });
+  }));
 }
 if (site.reel?.poster) jobs.push({ src: img(site.reel.poster), s: SCENES.site, seed: 'reel', variant: 'final', label: 'PLACEHOLDER  SHOWREEL POSTER' });
 
@@ -215,7 +218,7 @@ let made = 0;
 for (const j of jobs) {
   const file = path.join(IMAGES, j.src);
   if (!force) { try { await fs.access(file); continue; } catch {} }
-  const [W, H] = SIZE_OVERRIDE[j.src] || [j.s.w, j.s.h];
+  const [W, H] = j.size || SIZE_OVERRIDE[j.src] || [j.s.w, j.s.h];
   await fs.mkdir(path.dirname(file), { recursive: true });
   const svg = renderSvg(j.s, W, H, j.seed, j.variant, j.label.replace(/&/g, '&amp;').replace(/'/g, '&#39;'));
   await sharp(Buffer.from(svg)).jpeg({ quality: 90, mozjpeg: true }).toFile(file);

@@ -9,7 +9,7 @@ Open **`https://<your-site>/admin`** once the site is live on Netlify.
 1. **Sign in.** Choose **Sign In Using Access Token**. The dialog links to GitHub's token page with the right permission pre-selected (Contents: read and write on `Ckugler108/portfolio`). Create the token, paste it in, and your browser remembers it. It's a password, so don't share it.
 2. **Projects** lists every project. Open one, or press **New Project**, and fill in the form:
    - **Final frames**: upload your best frames (full resolution, JPG or PNG, at least 2400 px wide if you have it). Tick **Use as the main frame** on your strongest one; it's used on the home page and the project's cards.
-   - **Breakdown** (optional): upload a **Before** (usually the plate) and an **After** (usually the final). Add **Other passes** such as Layout or CG render if you want visitors to be able to swap them in. All breakdown images for one project must be exactly the same size in pixels.
+   - **Breakdown for this frame** (optional, inside each frame): upload a **Before**, usually the plate. The frame itself is the after, and the project page shows a before/after slider for it. Add **Other passes** such as Layout or CG render if you want visitors to be able to swap them in. Every breakdown image must be exactly the same size in pixels as its frame.
    - **What I did**: 3–6 plain sentences. Delete the `TODO:` placeholder text.
    - **Order**: lower numbers appear first on the home page.
 3. **Site settings** holds your name, one-line description, email, links, reel link (paste the Vimeo or YouTube URL), poster frame, bio, credits and software.
@@ -64,22 +64,24 @@ This is what the editor writes. You can also edit these files directly on GitHub
   "role": "Senior Matte Painter",
   "tools": ["Photoshop", "Nuke", "Houdini"],
   "stills": [
-    { "src": "/images/foundation-final.jpg", "alt": "What is in the frame", "featured": true }
+    {
+      "src": "/images/foundation-final.jpg", "alt": "What is in the frame", "featured": true,
+      "breakdown": {
+        "before": { "label": "Plate", "src": "/images/foundation-plate.jpg" },
+        "passes": [ { "label": "CG render", "src": "/images/foundation-render.jpg" } ]
+      }
+    },
+    { "src": "/images/foundation-final-2.jpg", "alt": "A second frame, without a breakdown" }
   ],
-  "breakdown": {
-    "before": { "label": "Plate", "src": "/images/foundation-plate.jpg" },
-    "after":  { "label": "Final", "src": "/images/foundation-final.jpg" },
-    "passes": [ { "label": "CG render", "src": "/images/foundation-render.jpg" } ]
-  },
   "description": "Three to six plain sentences about what you did."
 }
 ```
 
 - Image paths can be `/images/x.jpg` or `x.jpg`; both mean `images/x.jpg`.
-- `breakdown` is optional. With it, the project page gets a before/after slider (the before stays on the left; the after, or any pass the viewer picks, shows on the right), and the home page's **Plate to final** row gets a split card.
+- Each frame's `breakdown` is optional. With it, that frame shows as a before/after slider on the project page (the before stays on the left; the frame itself, or any pass the viewer picks, shows on the right). `afterLabel` renames the frame in the slider (default "Final"). The home page's **Plate to final** row gets a split card from the featured frame's breakdown, or the first frame that has one, linking straight to it.
 - `category` becomes a filter pill and the tag on cards. `code` (e.g. `ROP_S02`) and `stills[].caption` are optional.
 - Text starting with `TODO:` shows a yellow TODO tag on the site.
-- The build stops with a clear message if a required field, an `alt`, or an image file is missing, if a breakdown has a before without an after, or if breakdown images differ in size.
+- The build stops with a clear message if a required field, an `alt`, or an image file is missing, or if a breakdown image isn't the same size as its frame.
 
 ## Placeholders to replace
 
@@ -91,7 +93,7 @@ This is what the editor writes. You can also edit these files directly on GitHub
 
 - **Look**: dark theme, Figtree, rounded image cards, yellow for primary buttons and active filters. The colors and corner sizes are tokens at the top of `src/styles.css`.
 - **Home**: a hero carousel. The first slide shows your name and a Watch reel button over the reel poster; the next slides show the projects picked in Site settings, or the first three. It never moves by itself: viewers use the arrows, dots, swipe or arrow keys, and only slide 1's image loads with the page. If an availability line is set, it appears under your name with a green dot. Next is **Plate to final**: a split before/after card for each project with a breakdown, linking to that breakdown. Then **All work**: up to 4 across, with filter pills and a grid/list toggle. The browser remembers which view the viewer picked.
-- **Project page**: category tag, title, show and role. Then the frames (one frame shows up to 960 px wide, two sit side by side, three or more go 3 across), which open full size in a viewer. Then the breakdown slider, "What I did" beside a Details panel (studio, year, tools), and a **More work** row.
+- **Project page**: category tag, title, show and role. Then the **Frames** viewer: one large frame at a time, with thumbnails underneath to switch. A frame with a breakdown shows its before/after slider (plus pass buttons if it has passes); a frame without one shows the plain image. "View full size" opens the full-resolution viewer. Then "What I did" beside a Details panel (studio, year, tools), and a **More work** row. Links like `/work/<slug>/#frame-2` open a specific frame.
 - **Reel**: plays in a pop-up player; the Vimeo/YouTube player loads only when someone presses Watch reel.
 - **Breakdown slider**: drag with mouse or touch. On the divider, arrow keys move it and Page Up / Page Down switch passes.
 - **Images**: 320/640/1024/1600/2400 px in AVIF, WebP and JPG via `<picture>`, with `width`/`height` always set (no layout shift).
