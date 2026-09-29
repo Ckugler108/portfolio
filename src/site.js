@@ -1,7 +1,12 @@
 // Progressive enhancement only. Every page works without this file.
 (() => {
   'use strict';
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Every page opens at the top, including after Back/Forward or a reload.
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  const toTop = () => { if (!location.hash) window.scrollTo(0, 0); };
+  toTop();
+  window.addEventListener('pageshow', toTop);
+
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch {} },
@@ -48,24 +53,6 @@
     // Only slide 1 is visible at load; its neighbours are fetched after the page settles.
     slides.forEach((s, k) => { s.inert = k !== 0; s.setAttribute('aria-hidden', String(k !== 0)); });
     window.addEventListener('load', () => setTimeout(() => { hydrate(1); hydrate(-1); }, 1500));
-  }
-
-  // ---------- Horizontal card rows ----------
-  for (const sec of document.querySelectorAll('[data-row-wrap]')) {
-    const row = sec.querySelector('.row');
-    const prev = sec.querySelector('[data-row-prev]');
-    const next = sec.querySelector('[data-row-next]');
-    if (!row || !prev || !next) continue;
-    const update = () => {
-      prev.disabled = row.scrollLeft < 4;
-      next.disabled = row.scrollLeft + row.clientWidth > row.scrollWidth - 4;
-    };
-    const by = (dir) => row.scrollBy({ left: dir * row.clientWidth * 0.8, behavior: reduced ? 'auto' : 'smooth' });
-    prev.addEventListener('click', () => by(-1));
-    next.addEventListener('click', () => by(1));
-    row.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-    update();
   }
 
   // ---------- Browse: filter pills + grid/list toggle ----------
@@ -129,15 +116,6 @@
       thumbs.forEach((t, i) => t.setAttribute('aria-pressed', String(i === k)));
     };
     thumbs.forEach((t, i) => t.addEventListener('click', () => select(i)));
-    // Links such as #frame-2 (from the home page's before/after cards) open that frame.
-    const fromHash = () => {
-      const m = location.hash.match(/^#frame-(\d+)$/);
-      if (!m || !panels[m[1] - 1]) return;
-      select(m[1] - 1);
-      root.scrollIntoView({ block: 'start' });
-    };
-    window.addEventListener('hashchange', fromHash);
-    fromHash();
   }
 
   // ---------- Lightbox: full-size frames ----------

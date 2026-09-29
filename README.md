@@ -78,7 +78,7 @@ This is what the editor writes. You can also edit these files directly on GitHub
 ```
 
 - Image paths can be `/images/x.jpg` or `x.jpg`; both mean `images/x.jpg`.
-- Each frame's `breakdown` is optional. With it, that frame shows as a before/after slider on the project page (the before stays on the left; the frame itself, or any pass the viewer picks, shows on the right). `afterLabel` renames the frame in the slider (default "Final"). The home page's **Plate to final** row gets a split card from the featured frame's breakdown, or the first frame that has one, linking straight to it.
+- Each frame's `breakdown` is optional. With it, that frame shows as a before/after slider on the project page (the before stays on the left; the frame itself, or any pass the viewer picks, shows on the right). `afterLabel` renames the frame in the slider (default "Final").
 - `category` becomes a filter pill and the tag on cards. `code` (e.g. `ROP_S02`) and `stills[].caption` are optional.
 - Text starting with `TODO:` shows a yellow TODO tag on the site.
 - The build stops with a clear message if a required field, an `alt`, or an image file is missing, or if a breakdown image isn't the same size as its frame.
@@ -92,8 +92,9 @@ This is what the editor writes. You can also edit these files directly on GitHub
 ## How the site is laid out
 
 - **Look**: dark theme, Figtree, rounded image cards, yellow for primary buttons and active filters. The colors and corner sizes are tokens at the top of `src/styles.css`.
-- **Home**: a hero carousel. The first slide shows your name and a Watch reel button over the reel poster; the next slides show the projects picked in Site settings, or the first three. It never moves by itself: viewers use the arrows, dots, swipe or arrow keys, and only slide 1's image loads with the page. If an availability line is set, it appears under your name with a green dot. Next is **Plate to final**: a split before/after card for each project with a breakdown, linking to that breakdown. Then **All work**: up to 4 across, with filter pills and a grid/list toggle. The browser remembers which view the viewer picked.
-- **Project page**: category tag, title, show and role. Then the **Frames** viewer: one large frame at a time, with thumbnails underneath to switch. A frame with a breakdown shows its before/after slider (plus pass buttons if it has passes); a frame without one shows the plain image. "View full size" opens the full-resolution viewer. Then "What I did" beside a Details panel (studio, year, tools), and a **More work** row. Links like `/work/<slug>/#frame-2` open a specific frame.
+- **Home**: a hero carousel. The first slide shows your name and a Watch reel button over the reel poster; the next slides show the projects picked in Site settings, or the first three. It never moves by itself: viewers use the arrows, dots, swipe or arrow keys, and only slide 1's image loads with the page. If an availability line is set, it appears under your name with a green dot. Then **Work**: up to 4 across, with filter pills and a grid/list toggle. The browser remembers which view the viewer picked.
+- **Project page**: opens with the frames, full width at the top, as large as the screen allows at their own aspect ratio (on phones the frame fills about 60% of the screen height, cropping wide frames at the sides; "View full size" shows the whole frame). Thumbnails underneath switch frames. A frame with a breakdown is a before/after slider (plus pass buttons if it has passes); a frame without one is the plain image. Below: type and year, title, one line with show, studio and role, tool chips, "What I did", and a single **Next project** link.
+- **Navigation**: every page opens at the top, including after Back/Forward. No link jumps partway down another page.
 - **Reel**: plays in a pop-up player; the Vimeo/YouTube player loads only when someone presses Watch reel.
 - **Breakdown slider**: drag with mouse or touch. On the divider, arrow keys move it and Page Up / Page Down switch passes.
 - **Images**: 320/640/1024/1600/2400 px in AVIF, WebP and JPG via `<picture>`, with `width`/`height` always set (no layout shift).

@@ -59,7 +59,7 @@ collections:
       - label: Show / release
         name: show
         widget: string
-        hint: e.g. "Series, S02 — Prime Video" or "Feature — Netflix"
+        hint: Season and network or distributor, e.g. "Season 2 — Prime Video" or "Netflix". The type (Series, Film…) is shown separately.
       - label: Studio
         name: studio
         widget: string

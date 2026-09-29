@@ -45,9 +45,6 @@ for (const p of projects) {
       : [];
     return s;
   });
-  // The frame used for the home page's before/after card: the featured one if it has a breakdown.
-  p.bdIndex = [p.stills.findIndex((s) => s.featured && s.layers.length), p.stills.findIndex((s) => s.layers.length)].find((k) => k >= 0) ?? -1;
-  p.breakdownLayers = p.bdIndex >= 0 ? p.stills[p.bdIndex].layers : [];
 }
 
 // Reel: paste any Vimeo or YouTube link; provider + id are worked out here.
@@ -224,7 +221,7 @@ ${PREVIEW ? '' : `<script src="${root}assets/site.js" defer></script>\n`}</head>
 <header class="topbar"><div class="wrap">
 <a class="logo" href="${root || './'}">${esc(site.name)}</a>
 <nav class="nav" aria-label="Main">
-${nav(`${root || './'}#work`, 'Work', 'work')}
+${nav(root || './', 'Work', 'work')}
 ${reel ? `<a href="${esc(reelUrl)}"${PREVIEW ? '' : ' data-reel-open'}>Reel</a>` : ''}
 ${nav(dir(`${root}about/`), 'About', 'about')}
 ${site.imdb ? `<a href="${esc(site.imdb)}">IMDb</a>` : ''}
@@ -234,7 +231,6 @@ ${site.linkedin ? `<a href="${esc(site.linkedin)}">LinkedIn</a>` : ''}
 </div></header>
 ${body}
 <footer class="foot"><div class="wrap">
-<span class="logo">${esc(site.name)}</span>
 <a href="mailto:${esc(site.email)}">${esc(site.email)}</a>
 <span>${esc(site.location)}</span>
 <span class="end">© ${year} ${esc(site.name)}. Frames © their respective studios.</span>
@@ -247,46 +243,10 @@ ${reel && !PREVIEW ? `<dialog id="reel-dialog" class="reel-modal" data-provider=
 `;
 }
 
-// Overlay card used in horizontal rows.
-function card(p, root, meta) {
-  return `<a class="card" href="${projHref(root, p)}">
-${picture(keyStill(p).src, root, { alt: '', sizes: '(min-width: 768px) 288px, 78vw' })}
-<span class="tag">${esc(category(p))}</span>
-<span class="card-info"><span class="card-title">${esc(p.title)} <span class="yr">(${esc(p.year)})</span></span><span class="card-meta">${esc(meta)}</span></span>
-</a>`;
-}
-
-// Before/after card: the plate on the left half, the final comp on the right.
-function splitCard(p, root) {
-  const L = p.breakdownLayers;
-  const sizes = '(min-width: 768px) 360px, 82vw';
-  return `<a class="card split" href="${projHref(root, p)}#frame-${p.bdIndex + 1}">
-${picture(L[1].src, root, { alt: '', sizes })}
-<span class="split-before">${picture(L[0].src, root, { alt: '', sizes })}</span>
-<span class="split-line" aria-hidden="true"></span>
-<span class="tag split-a">${esc(L[0].label)}</span><span class="tag split-b">${esc(L[1].label)}</span>
-<span class="card-info"><span class="card-title">${esc(p.title)} <span class="yr">(${esc(p.year)})</span></span><span class="card-meta">${esc(category(p))} · ${L.length > 2 ? `before / after + ${plural(L.length - 2, 'pass', 'passes')}` : 'before / after'}</span></span>
-</a>`;
-}
-
-function rowSection({ id, title, count, viewAll, items, cls = '' }) {
-  return `<section class="section wrap" aria-labelledby="${id}" data-row-wrap>
-<div class="section-head">
-<h2 id="${id}">${esc(title)}</h2>
-${count ? `<span class="count">${esc(count)}</span>` : ''}
-${viewAll ? `<a class="view-all" href="${viewAll}">View all ${icon.arrow}</a>` : ''}
-<div class="head-end"><button class="round-btn" type="button" data-row-prev aria-label="Scroll ${esc(title)} left">${icon.left}</button><button class="round-btn" type="button" data-row-next aria-label="Scroll ${esc(title)} right">${icon.right}</button></div>
-</div>
-<ul class="row${cls ? ` ${cls}` : ''}">
-${items.map((x) => `<li>${x}</li>`).join('\n')}
-</ul>
-</section>`;
-}
-
 // ---------- index ----------
 function indexPage() {
   const root = '';
-  const heroSlugs = site.heroProjects || projects.slice(0, 3).map((p) => p.slug);
+  const heroSlugs = site.heroProjects?.length ? site.heroProjects : projects.slice(0, 3).map((p) => p.slug);
   const heroProjects = heroSlugs.map((s) => projects.find((p) => p.slug === s)).filter(Boolean);
   const slides = [];
   const total = heroProjects.length + 1;
@@ -299,7 +259,7 @@ ${picture(reel?.poster || keyStill(projects[0]).src, root, { alt: '', sizes: siz
 ${site.availability && !/^TODO/.test(site.availability) ? `<p class="status"><span class="dot" aria-hidden="true"></span>${esc(site.availability)}</p>` : ''}
 <div class="actions">
 ${reel ? `<a class="btn btn-accent" href="${esc(reelUrl)}"${PREVIEW ? '' : ' data-reel-open'}>${icon.play}Watch reel</a>` : ''}
-<a class="btn btn-ghost" href="#work">See the work</a>
+<a class="btn btn-ghost" href="${dir('about/')}">About me</a>
 </div>
 </div>
 </article>`);
@@ -313,7 +273,6 @@ ${reel ? `<a class="btn btn-accent" href="${esc(reelUrl)}"${PREVIEW ? '' : ' dat
 </div>
 </article>`));
 
-  const withBd = projects.filter((p) => (p.breakdownLayers || []).length >= 2);
   const tiles = projects.map((p) => `<li data-cat="${esc(category(p))}"><a class="tile" href="${projHref(root, p)}">
 <span class="tile-img">${picture(keyStill(p).src, root, { alt: '', sizes: '(min-width: 1560px) 354px, (min-width: 1100px) 23vw, (min-width: 768px) 31vw, 48vw' })}</span>
 <span class="tile-title">${esc(p.title)}</span>
@@ -339,14 +298,9 @@ ${slides.join('\n')}
 </section>
 </div>
 
-${withBd.length ? rowSection({
-    id: 'bd-h', title: 'Plate to final', count: 'Breakdowns from ' + plural(withBd.length, 'project'), viewAll: '',
-    items: withBd.map((p) => splitCard(p, root)), cls: 'row-wide',
-  }) : ''}
-
 <section id="work" class="section wrap" aria-labelledby="work-h" data-browse>
 <div class="section-head">
-<h2 id="work-h">All work</h2>
+<h2 id="work-h">Work</h2>
 <span class="count" data-count>${plural(projects.length, 'project')}</span>
 <div class="head-end">
 <div class="tabs" role="group" aria-label="Filter by type">
@@ -379,79 +333,66 @@ ${rows}
 // ---------- project ----------
 function projectPage(p, i) {
   const root = '../../';
-  const others = [...projects.slice(i + 1), ...projects.slice(0, i)];
+  const next = projects[(i + 1) % projects.length];
 
-  // One viewer for all frames. A frame with a breakdown shows the before/after slider;
-  // one without shows the plain frame. Thumbnails underneath switch frames.
+  // The frames are the hero: full width at the top of the page. A frame with a breakdown is a
+  // before/after slider; one without is the plain frame. Thumbnails underneath switch frames.
   const n = p.stills.length;
-  const withBd = p.stills.filter((st) => st.layers.length).length;
-  const sizesView = '(min-width: 1560px) 1216px, calc(100vw - 64px)';
+  const sizesView = '100vw';
   const panel = (st, k) => {
     const L = st.layers;
     const m = manifest[st.src];
+    const fit = `style="--ar:${m.width} / ${m.height};--arn:${(m.width / m.height).toFixed(4)}"`;
     const full = `<a class="full-link" href="${largestJpg(st.src, root)}" data-lb data-i="${k}">View full size</a>`;
     if (L.length < 2) {
-      return `<div class="frame-panel${k === 0 ? ' is-on' : ''}" id="frame-${k + 1}" data-panel="${k}">
-<div class="bd-panel"><div class="bd-view">
-<a class="still" href="${largestJpg(st.src, root)}" aria-label="Open frame ${k + 1} full size" data-lb-proxy="${k}" style="--ar:${(m.width / m.height).toFixed(4)}">${picture(st.src, root, { alt: st.alt, sizes: sizesView, eager: k === 0 })}</a>
-<p class="frame-meta"><span>${n > 1 ? `Frame ${k + 1} of ${n}` : 'Final frame'}${st.caption ? ` · ${esc(st.caption)}` : ''}</span>${full}</p>
+      return `<div class="frame-panel${k === 0 ? ' is-on' : ''}" data-panel="${k}">
+<div class="stage"><div class="fit" ${fit}>
+<a class="still" href="${largestJpg(st.src, root)}" aria-label="Open frame ${k + 1} full size" data-lb-proxy="${k}">${picture(st.src, root, { alt: st.alt, sizes: sizesView, eager: k === 0 })}</a>
 </div></div>
+<div class="wrap panel-bar">${st.caption ? `<span class="hint">${esc(st.caption)}</span>` : ''}${full}</div>
 </div>`;
     }
     const passes = L.length > 2;
-    return `<div class="frame-panel${k === 0 ? ' is-on' : ''}" id="frame-${k + 1}" data-panel="${k}" data-breakdown>
-<div class="bd-panel${passes ? ' has-passes' : ''}">
-${passes ? `<div class="tabs" role="group" aria-label="Compare ${esc(L[0].label)} with">
-${L.slice(1).map((l, j) => `<button type="button" data-layer data-i="${j + 1}" aria-pressed="${j === 0}">${esc(l.label)}</button>`).join('\n')}
-</div>` : ''}
-<div class="bd-view">
-<div class="wipe" style="--ar:${m.width} / ${m.height}">
+    return `<div class="frame-panel${k === 0 ? ' is-on' : ''}" data-panel="${k}" data-breakdown>
+<div class="stage"><div class="fit" ${fit}>
+<div class="wipe">
 ${L.map((l, j) => `<figure class="wipe-layer" data-label="${esc(l.label)}">${picture(l.src, root, { alt: l.alt || l.label, sizes: sizesView, eager: k === 0 && j < 2 })}<figcaption>${esc(l.label)}</figcaption></figure>`).join('\n')}
 <span class="tag wipe-tag a" aria-hidden="true"></span><span class="tag wipe-tag b" aria-hidden="true"></span>
 <div class="wipe-handle" role="slider" tabindex="0" aria-label="Wipe position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span class="wipe-knob">${icon.drag}</span></div>
 </div>
-<p class="frame-meta"><span>${n > 1 ? `Frame ${k + 1} of ${n} · ` : ''}${esc(L[0].label)} / ${esc(L[1].label)}${passes ? ` + ${plural(L.length - 2, 'pass', 'passes')}` : ''}. <span class="wipe-hint">Drag across the frame to compare.</span></span>${full}</p>
+</div></div>
+<div class="wrap panel-bar">
+${passes ? `<div class="tabs" role="group" aria-label="Compare ${esc(L[0].label)} with">${L.slice(1).map((l, j) => `<button type="button" data-layer data-i="${j + 1}" aria-pressed="${j === 0}">${esc(l.label)}</button>`).join('')}</div>` : ''}
+<span class="hint wipe-hint">Drag to compare</span>${full}
 </div>
 <p class="vh" aria-live="polite" data-live></p>
-</div>
 </div>`;
   };
-  const gallery = `<section id="frames" class="section p-top" aria-labelledby="fr-h" data-frames>
-<div class="section-head"><h2 id="fr-h">Frames</h2><span class="count">${plural(n, 'frame')}${withBd ? ` · ${withBd === n && n > 1 ? 'all with' : withBd + ' with'} breakdown${withBd > 1 && withBd !== n ? 's' : ''}` : ''}</span></div>
-<div class="viewer">
+
+  const body = `<main id="main">
+<section class="p-hero" aria-label="Frames" data-frames>
 ${p.stills.map(panel).join('\n')}
-</div>
-${n > 1 ? `<div class="thumbs" role="group" aria-label="Choose a frame">
-${p.stills.map((st, k) => `<button type="button" class="thumb" data-show="${k}" aria-pressed="${k === 0}" aria-label="Frame ${k + 1}${st.layers.length ? ', Before / after' : ''}">${picture(st.src, root, { alt: '', sizes: '160px' })}${st.layers.length ? '<span class="tag">Before / after</span>' : ''}</button>`).join('\n')}
+${n > 1 ? `<div class="wrap thumbs" role="group" aria-label="Choose a frame">
+${p.stills.map((st, k) => `<button type="button" class="thumb" data-show="${k}" aria-pressed="${k === 0}" aria-label="Frame ${k + 1}${st.layers.length ? ', Before / after' : ''}">${picture(st.src, root, { alt: '', sizes: '168px' })}${st.layers.length ? '<span class="tag">Before / after</span>' : ''}</button>`).join('\n')}
 </div>` : ''}
-</section>`;
-  const breakdown = '';
-
-  const details = [['Role', esc(p.role)], ['Studio', esc(p.studio)], ['Year', esc(p.year)],
-    ['Tools', `<ul class="chips">${p.tools.map((t) => `<li class="chip">${esc(t)}</li>`).join('')}</ul>`]]
-    .map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
-
-  const body = `<main id="main" class="wrap">
-<p class="crumbs"><a href="${root}#work">Work</a> / ${esc(category(p))}</p>
-<header class="p-head">
-<span class="tag">${esc(category(p))}</span>
-<h1 class="p-title">${esc(p.title)} <span class="yr">(${esc(p.year)})</span></h1>
-<p class="p-sub">${esc(p.show)} · ${esc(p.role)}</p>
-</header>
-${gallery}
-${breakdown}
-<section class="section p-body" aria-labelledby="what-h">
-<div>
-<div class="section-head"><h2 id="what-h">What I did</h2></div>
-<div class="prose">${description(p.description)}</div>
-</div>
-<aside class="panel" aria-label="Project details">
-<h3>Details</h3>
-<dl class="kv">${details}</dl>
-</aside>
 </section>
+<div class="wrap p-info">
+<header class="p-head">
+<p class="kicker">${esc(category(p))} · ${esc(p.year)}</p>
+<h1 class="p-title">${esc(p.title)}</h1>
+<p class="p-sub">${[p.show, p.studio, p.role].filter(Boolean).map(esc).join(' · ')}</p>
+<ul class="chips" aria-label="Tools">${p.tools.map((t) => `<li class="chip">${esc(t)}</li>`).join('')}</ul>
+</header>
+<section class="p-what" aria-labelledby="what-h">
+<h2 id="what-h" class="label">What I did</h2>
+<div class="prose">${description(p.description)}</div>
+</section>
+</div>
+${next !== p ? `<nav class="wrap next-proj" aria-label="Next project"><a href="${projHref(root, next)}">
+<span><span class="np-label">Next project</span><span class="np-title">${esc(next.title)} ${icon.arrow}</span></span>
+<span class="np-img">${picture(keyStill(next).src, root, { alt: '', sizes: '(min-width: 768px) 240px, 120px' })}</span>
+</a></nav>` : ''}
 </main>
-${rowSection({ id: 'more-h', title: 'More work', count: '', viewAll: `${root}#work`, items: others.map((o) => card(o, root, `${o.role}`)) })}
 <dialog id="lightbox" class="lightbox" aria-label="Frame viewer">
 <button class="round-btn dlg-close" type="button" aria-label="Close">${icon.close}</button>
 <div class="lb-stage"></div>
