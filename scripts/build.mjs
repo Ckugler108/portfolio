@@ -371,10 +371,10 @@ ${passes ? `<div class="tabs" role="group" aria-label="Compare ${esc(L[0].label)
 
   const body = `<main id="main">
 <section class="p-hero" aria-label="Frames" data-frames>
-${p.stills.map(panel).join('\n')}
 ${n > 1 ? `<div class="wrap thumbs" role="group" aria-label="Choose a frame">
-${p.stills.map((st, k) => `<button type="button" class="thumb" data-show="${k}" aria-pressed="${k === 0}" aria-label="Frame ${k + 1}${st.layers.length ? ', Before / after' : ''}">${picture(st.src, root, { alt: '', sizes: '168px' })}${st.layers.length ? '<span class="tag">Before / after</span>' : ''}</button>`).join('\n')}
+${p.stills.map((st, k) => `<button type="button" class="thumb" data-show="${k}" aria-pressed="${k === 0}" aria-label="Frame ${k + 1}${st.layers.length ? ', Before / after' : ''}">${picture(st.src, root, { alt: '', sizes: '128px' })}${st.layers.length ? '<span class="tag">Before / after</span>' : ''}</button>`).join('\n')}
 </div>` : ''}
+${p.stills.map(panel).join('\n')}
 </section>
 <div class="wrap p-info">
 <header class="p-head">
