@@ -369,30 +369,30 @@ ${passes ? `<div class="tabs" role="group" aria-label="Compare ${esc(L[0].label)
 </div>`;
   };
 
-  const body = `<main id="main">
+  const body = `<main id="main" class="p-layout">
+<header class="p-head">
+<p class="kicker">${esc(category(p))} · ${esc(p.year)}</p>
+<h1 class="p-title">${esc(p.title)}</h1>
+<p class="p-sub">${[p.show, p.studio, p.role].filter(Boolean).map(esc).join(' · ')}</p>
+</header>
 <section class="p-hero" aria-label="Frames" data-frames>
 ${n > 1 ? `<div class="wrap thumbs" role="group" aria-label="Choose a frame">
 ${p.stills.map((st, k) => `<button type="button" class="thumb" data-show="${k}" aria-pressed="${k === 0}" aria-label="Frame ${k + 1}${st.layers.length ? ', Before / after' : ''}">${picture(st.src, root, { alt: '', sizes: '(min-width: 768px) 384px, 312px' })}${st.layers.length ? '<span class="tag">Before / after</span>' : ''}</button>`).join('\n')}
 </div>` : ''}
 ${p.stills.map(panel).join('\n')}
 </section>
-<div class="wrap p-info">
-<header class="p-head">
-<p class="kicker">${esc(category(p))} · ${esc(p.year)}</p>
-<h1 class="p-title">${esc(p.title)}</h1>
-<p class="p-sub">${[p.show, p.studio, p.role].filter(Boolean).map(esc).join(' · ')}</p>
+<div class="p-desc">
 <ul class="chips" aria-label="Tools">${p.tools.map((t) => `<li class="chip">${esc(t)}</li>`).join('')}</ul>
-</header>
 <section class="p-what" aria-labelledby="what-h">
 <h2 id="what-h" class="label">What I did</h2>
 <div class="prose">${description(p.description)}</div>
 </section>
 </div>
+</main>
 ${next !== p ? `<nav class="wrap next-proj" aria-label="Next project"><a href="${projHref(root, next)}">
 <span><span class="np-label">Next project</span><span class="np-title">${esc(next.title)} ${icon.arrow}</span></span>
 <span class="np-img">${picture(keyStill(next).src, root, { alt: '', sizes: '(min-width: 768px) 240px, 120px' })}</span>
 </a></nav>` : ''}
-</main>
 <dialog id="lightbox" class="lightbox" aria-label="Frame viewer">
 <button class="round-btn dlg-close" type="button" aria-label="Close">${icon.close}</button>
 <div class="lb-stage"></div>
