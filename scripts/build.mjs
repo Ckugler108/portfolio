@@ -243,6 +243,16 @@ ${reel && !PREVIEW ? `<dialog id="reel-dialog" class="reel-modal" data-provider=
 `;
 }
 
+// Project tile: used by the home grid and the "More work" row on project pages.
+const tileSizes = '(min-width: 1560px) 354px, (min-width: 1100px) 23vw, (min-width: 768px) 31vw, 48vw';
+function tile(p, root) {
+  return `<a class="tile" href="${projHref(root, p)}">
+<span class="tile-img">${picture(keyStill(p).src, root, { alt: '', sizes: tileSizes })}</span>
+<span class="tile-title">${esc(p.title)}</span>
+<span class="tile-meta">${esc(p.year)} · ${esc(p.role)}</span>
+</a>`;
+}
+
 // ---------- index ----------
 function indexPage() {
   const root = '';
@@ -273,11 +283,7 @@ ${reel ? `<a class="btn btn-accent" href="${esc(reelUrl)}"${PREVIEW ? '' : ' dat
 </div>
 </article>`));
 
-  const tiles = projects.map((p) => `<li data-cat="${esc(category(p))}"><a class="tile" href="${projHref(root, p)}">
-<span class="tile-img">${picture(keyStill(p).src, root, { alt: '', sizes: '(min-width: 1560px) 354px, (min-width: 1100px) 23vw, (min-width: 768px) 31vw, 48vw' })}</span>
-<span class="tile-title">${esc(p.title)}</span>
-<span class="tile-meta">${esc(p.year)} · ${esc(p.role)}</span>
-</a></li>`).join('\n');
+  const tiles = projects.map((p) => `<li data-cat="${esc(category(p))}">${tile(p, root)}</li>`).join('\n');
   const rows = projects.map((p) => `<tr data-cat="${esc(category(p))}">
 <td class="l-thumb">${picture(keyStill(p).src, root, { alt: '', sizes: '104px' })}</td>
 <td class="l-title"><a href="${projHref(root, p)}">${esc(p.title)}</a></td>
@@ -333,7 +339,8 @@ ${rows}
 // ---------- project ----------
 function projectPage(p, i) {
   const root = '../../';
-  const next = projects[(i + 1) % projects.length];
+  // The next four projects in the site's order, wrapping around, so each page shows a different set.
+  const more = [1, 2, 3, 4].map((k) => projects[(i + k) % projects.length]).filter((o, k, a) => o !== p && a.indexOf(o) === k);
 
   // The frames are the hero: full width at the top of the page. A frame with a breakdown is a
   // before/after slider; one without is the plain frame. Thumbnails underneath switch frames.
@@ -389,10 +396,12 @@ ${p.stills.map(panel).join('\n')}
 </section>
 </div>
 </main>
-${next !== p ? `<nav class="wrap next-proj" aria-label="Next project"><a href="${projHref(root, next)}">
-<span><span class="np-label">Next project</span><span class="np-title">${esc(next.title)} ${icon.arrow}</span></span>
-<span class="np-img">${picture(keyStill(next).src, root, { alt: '', sizes: '(min-width: 768px) 240px, 120px' })}</span>
-</a></nav>` : ''}
+${more.length ? `<section class="section wrap more-work" aria-labelledby="more-h">
+<div class="section-head"><h2 id="more-h">More work</h2></div>
+<ul class="tiles">
+${more.map((o) => `<li>${tile(o, root)}</li>`).join('\n')}
+</ul>
+</section>` : ''}
 <dialog id="lightbox" class="lightbox" aria-label="Frame viewer">
 <button class="round-btn dlg-close" type="button" aria-label="Close">${icon.close}</button>
 <div class="lb-stage"></div>

@@ -253,8 +253,6 @@ html:not(.js) .thumbs { display: none; }
 .p-head .kicker { margin: 0; }
 .p-what { margin-top: 24px; }
 .label { font-size: 13px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
-.next-proj { margin-top: 64px; }
-.next-proj a { max-width: 900px; }
 @media (min-width: 1024px) {
   .p-layout { grid-template-columns: 340px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "head frames" "desc frames"; column-gap: 40px; padding: 24px var(--pad) 0; align-items: start; }
   .p-head, .p-desc { padding: 0; }
@@ -266,13 +264,12 @@ html:not(.js) .thumbs { display: none; }
   .fit { width: min(100%, calc((100svh - 56px - 24px - 250px - 72px) * var(--arn))); }
   .p-title { font-size: 36px; }
 }
-.next-proj a { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 16px 16px 16px 24px; border-radius: var(--r); background: var(--surface); }
-.next-proj a:hover .np-title { color: var(--accent); }
-.np-label { display: block; font-size: 12px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: .05em; }
-.np-title { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 24px; font-weight: 800; letter-spacing: -.01em; }
-.np-img { display: block; width: 240px; }
-.np-img img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--r-sm); }
-@media (max-width: 767px) { .np-title { font-size: 18px; } .np-img { width: 120px; } .next-proj a { padding-left: 16px; } }
+
+/* "More work" on project pages: one row that fits across (4 / 3 / 2 tiles) */
+.more-work { margin-top: 72px; }
+.more-work .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1099px) { .more-work .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } .more-work .tiles > :nth-child(n + 4) { display: none; } }
+@media (max-width: 767px) { .more-work .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .more-work .tiles > :nth-child(n + 3) { display: none; } }
 
 /* ---------- about ---------- */
 .about-head { padding-top: 40px; display: grid; gap: 16px; }
