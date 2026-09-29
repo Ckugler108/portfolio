@@ -217,7 +217,7 @@ html:not(.js) .head-end { display: none; }
 html:not(.js) .frame-panel + .frame-panel { margin-top: 24px; }
 .stage { display: flex; justify-content: center; background: #000; }
 /* as large as the screen allows at the frame's own aspect, leaving room for the bar and thumbnails */
-.fit { width: min(100%, calc((100svh - 260px) * var(--arn))); }
+.fit { width: min(100%, calc((100svh - 380px) * var(--arn))); }
 .fit .still { display: block; }
 .fit .still img { width: 100%; height: auto; }
 .panel-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding-block: 14px; min-height: 64px; }
@@ -225,24 +225,22 @@ html:not(.js) .frame-panel + .frame-panel { margin-top: 24px; }
 .hint { font-size: 13px; color: var(--dim); }
 .full-link { margin-left: auto; font-size: 14px; font-weight: 600; white-space: nowrap; padding-block: 4px; }
 .full-link:hover { color: var(--accent); }
-.thumbs { display: flex; gap: 10px; padding-block: 12px; overflow-x: auto; scrollbar-width: none; }
+.thumbs { display: flex; gap: 16px; padding-block: 16px; overflow-x: auto; scrollbar-width: none; }
 .thumbs::-webkit-scrollbar { display: none; }
-.thumbs > :first-child { margin-left: auto; }
-.thumbs > :last-child { margin-right: auto; }
-.thumb { position: relative; flex: none; width: 128px; aspect-ratio: 16 / 9; border-radius: var(--r-sm); overflow: hidden; background: var(--surface); outline: 2px solid transparent; outline-offset: 2px; opacity: .6; transition: opacity 150ms ease; }
+.thumb { position: relative; flex: none; width: 384px; aspect-ratio: 16 / 9; border-radius: var(--r); overflow: hidden; background: var(--surface); outline: 2px solid transparent; outline-offset: 2px; opacity: .6; transition: opacity 150ms ease; }
 .thumb img { width: 100%; height: 100%; object-fit: cover; }
 .thumb:hover { opacity: 1; }
 .thumb[aria-pressed="true"] { opacity: 1; outline-color: var(--accent); }
-.thumb .tag { position: absolute; left: 5px; bottom: 5px; font-size: 9px; padding: 1px 4px; }
+.thumb .tag { position: absolute; left: 10px; bottom: 10px; }
 html:not(.js) .thumbs { display: none; }
 @media (max-width: 767px) {
   /* phones: the frame fills most of the screen height (wide frames are cropped at the sides;
      "View full size" shows the whole frame) */
   .fit { width: 100%; }
-  .fit .still, .js .fit .wipe { aspect-ratio: auto; height: 58svh; }
+  .fit .still, .js .fit .wipe { aspect-ratio: auto; height: 50svh; }
   .fit .still img, .js .fit .wipe-layer img { width: 100%; height: 100%; object-fit: cover; }
-  .thumbs { gap: 8px; padding-block: 10px; }
-  .thumb { width: 104px; }
+  .thumbs { gap: 12px; padding-block: 12px; }
+  .thumb { width: 312px; max-width: 82%; }
   .panel-bar .tabs { order: 3; width: 100%; }
 }
 .p-info { max-width: 900px; margin-inline: auto; }
