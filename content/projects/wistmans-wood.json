@@ -1,0 +1,38 @@
+{
+  "order": 70,
+  "slug": "wistmans-wood",
+  "title": "Wistman's Wood",
+  "code": "WSWD",
+  "category": "Personal",
+  "show": "Personal — Houdini R&D",
+  "studio": "Personal",
+  "year": 2025,
+  "role": "Everything",
+  "tools": [
+    "Houdini",
+    "Karma"
+  ],
+  "stills": [
+    {
+      "src": "/images/wistmans-wood/final-01.jpg",
+      "alt": "TODO alt: Stunted oak trees among moss-covered boulders under an overcast sky."
+    },
+    {
+      "src": "/images/wistmans-wood/final-02.jpg",
+      "alt": "TODO alt: Vertical frame of twisted oak trunks and mossy granite."
+    }
+  ],
+  "breakdown": {
+    "before": {
+      "label": "Blockout",
+      "src": "/images/wistmans-wood/bd-01-layout.jpg",
+      "alt": "Grey scatter layout of boulders and trees."
+    },
+    "after": {
+      "label": "Final",
+      "src": "/images/wistmans-wood/bd-04-final.jpg",
+      "alt": "Final graded frame with fog."
+    }
+  },
+  "description": "TODO: Replace with 3–6 plain sentences in your own words. This is a study of the oak wood on Dartmoor. I scattered boulders and trees procedurally in Houdini and rendered in Karma. Say what you were testing and what you learned."
+}

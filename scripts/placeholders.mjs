@@ -1,5 +1,5 @@
 // Generates placeholder master images for every file referenced in
-// content/projects.json and content/site.json that does not exist yet.
+// content/projects/*.json and content/site.json that does not exist yet.
 // Real artwork dropped into images/ is never overwritten.
 //
 //   npm run placeholders          (only missing files)
@@ -189,7 +189,15 @@ function renderSvg(s, W, H, seed, variant, label) {
 }
 
 // ---------- which files to make ----------
-const projects = JSON.parse(await fs.readFile(path.join(ROOT, 'content/projects.json'), 'utf8'));
+const img = (src) => String(src || '').replace(/^\/?(images\/)?/, '');
+const dir = path.join(ROOT, 'content/projects');
+const projects = await Promise.all((await fs.readdir(dir)).filter((f) => f.endsWith('.json'))
+  .map(async (f) => JSON.parse(await fs.readFile(path.join(dir, f), 'utf8'))));
+for (const p of projects) {
+  (p.stills || []).forEach((s) => { s.src = img(s.src); });
+  const b = p.breakdown || {};
+  p.breakdownLayers = [b.before, ...(b.passes || []), b.after].filter((x) => x && x.src).map((x) => ({ ...x, src: img(x.src) }));
+}
 const site = JSON.parse(await fs.readFile(path.join(ROOT, 'content/site.json'), 'utf8'));
 
 const jobs = [];
@@ -201,7 +209,7 @@ for (const p of projects) {
     jobs.push({ src: l.src, s, seed: `${p.slug}-bd`, variant, label: `PLACEHOLDER  ${p.code || p.slug}  ${String(i + 1).padStart(2, '0')} ${l.label.toUpperCase()}` });
   });
 }
-if (site.reel?.poster) jobs.push({ src: site.reel.poster, s: SCENES.site, seed: 'reel', variant: 'final', label: 'PLACEHOLDER  SHOWREEL POSTER' });
+if (site.reel?.poster) jobs.push({ src: img(site.reel.poster), s: SCENES.site, seed: 'reel', variant: 'final', label: 'PLACEHOLDER  SHOWREEL POSTER' });
 
 let made = 0;
 for (const j of jobs) {

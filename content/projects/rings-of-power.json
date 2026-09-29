@@ -1,0 +1,52 @@
+{
+  "order": 10,
+  "slug": "rings-of-power",
+  "title": "The Rings of Power",
+  "code": "ROP_S02",
+  "category": "Series",
+  "show": "Series, S02 — Prime Video",
+  "studio": "Studio TBC",
+  "year": 2024,
+  "role": "Senior Environment Artist",
+  "tools": [
+    "Maya",
+    "Houdini",
+    "Photoshop",
+    "Nuke"
+  ],
+  "stills": [
+    {
+      "src": "/images/rings-of-power/final-01.jpg",
+      "alt": "TODO alt: Dusk establishing frame of a mountain valley with carved stone pillars on the far cliff."
+    },
+    {
+      "src": "/images/rings-of-power/final-02.jpg",
+      "alt": "TODO alt: Wide frame of layered ridgelines in warm haze."
+    }
+  ],
+  "breakdown": {
+    "before": {
+      "label": "Plate",
+      "src": "/images/rings-of-power/bd-01-plate.jpg",
+      "alt": "Original plate: foreground rock ledge against bluescreen."
+    },
+    "after": {
+      "label": "Final",
+      "src": "/images/rings-of-power/bd-05-final.jpg",
+      "alt": "Final composite with depth haze and grade."
+    },
+    "passes": [
+      {
+        "label": "Layout",
+        "src": "/images/rings-of-power/bd-02-layout.jpg",
+        "alt": "Grey blockout geometry for the valley and cliffs."
+      },
+      {
+        "label": "CG render",
+        "src": "/images/rings-of-power/bd-03-render.jpg",
+        "alt": "CG render of the mid-ground cliffs without atmosphere."
+      }
+    ]
+  },
+  "description": "TODO: Replace with 3–6 plain sentences in your own words. I built the far valley and the cliff faces for a dusk establishing shot. The plate only covered the foreground ledge, so everything past it was new. I blocked the valley out in Maya, rendered the mid-ground cliffs, and painted the sky and far ridges in Photoshop. Most of the time went into matching the haze to the plate."
+}

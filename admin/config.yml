@@ -1,0 +1,217 @@
+# Content editor for the portfolio (Sveltia CMS). Open /admin on the live site.
+# Saving commits to GitHub; Netlify then rebuilds the site (about 1–2 minutes).
+
+backend:
+  name: github
+  repo: Ckugler108/portfolio
+  branch: main
+  commit_messages:
+    create: "Add {{collection}} “{{slug}}”"
+    update: "Update {{collection}} “{{slug}}”"
+    delete: "Delete {{collection}} “{{slug}}”"
+    uploadMedia: "Upload “{{path}}”"
+    deleteMedia: "Delete “{{path}}”"
+
+# Uploaded images are stored in the repository's images/ folder.
+media_folder: images
+public_folder: /images
+
+collections:
+  - name: projects
+    label: Projects
+    label_singular: Project
+    description: One entry per project. Lower "Order" numbers appear first on the site.
+    folder: content/projects
+    format: json
+    extension: json
+    create: true
+    delete: true
+    slug: "{{fields.slug}}"
+    identifier_field: title
+    summary: "{{title}} ({{year}})"
+    sortable_fields: [order, title, year]
+    fields:
+      - label: Project title
+        name: title
+        widget: string
+        hint: As it should appear on the site, e.g. The Rings of Power
+      - label: Web address
+        name: slug
+        widget: string
+        pattern: ['^[a-z0-9-]+$', 'Use lowercase letters, numbers and dashes only']
+        hint: The end of the project's link, e.g. rings-of-power gives /work/rings-of-power/. Don't change it after publishing.
+      - label: Order
+        name: order
+        widget: number
+        value_type: int
+        default: 100
+        hint: Lower numbers come first on the home page (10, 20, 30… leaves room to insert later).
+      - label: Type
+        name: category
+        widget: select
+        options: [Series, Film, Commercial, Game, Personal]
+        default: Film
+        hint: Becomes the filter pill and the tag on the project's cards.
+      - label: Year
+        name: year
+        widget: number
+        value_type: int
+      - label: Show / release
+        name: show
+        widget: string
+        hint: e.g. "Series, S02 — Prime Video" or "Feature — Netflix"
+      - label: Studio
+        name: studio
+        widget: string
+        hint: The VFX studio you worked at, or "Personal"
+      - label: Your role
+        name: role
+        widget: string
+        hint: e.g. Senior Environment Artist
+      - label: Tools
+        name: tools
+        widget: list
+        hint: Type a tool and press Enter, or separate them with commas.
+      - label: Short code
+        name: code
+        widget: string
+        required: false
+        hint: Optional, e.g. ROP_S02
+      - label: What I did
+        name: description
+        widget: text
+        hint: 3–6 plain sentences in your own words. The shot, what you built, the tools, the hard part.
+      - label: Final frames
+        name: stills
+        widget: list
+        min: 1
+        label_singular: frame
+        summary: "{{fields.alt}}"
+        hint: Your best frames, full resolution (at least 2400 px wide if you have it). JPG or PNG.
+        fields:
+          - { label: Image, name: src, widget: image }
+          - label: Description (alt text)
+            name: alt
+            widget: string
+            hint: What's in the frame, in a few words. Read aloud by screen readers.
+          - label: Use as the main frame
+            name: featured
+            widget: boolean
+            required: false
+            default: false
+            hint: Shown on the home page and the project's cards. Tick it on one frame per project.
+          - { label: Caption, name: caption, widget: string, required: false }
+      - label: Breakdown
+        name: breakdown
+        widget: object
+        required: false
+        collapsed: false
+        hint: Optional. A before/after slider on the project page. All images here must be exactly the same size in pixels.
+        fields:
+          - label: Before
+            name: before
+            widget: object
+            required: false
+            hint: Usually the original plate.
+            fields:
+              - { label: Image, name: src, widget: image, required: false }
+              - { label: Name, name: label, widget: string, default: Plate, required: false }
+              - { label: Description (alt text), name: alt, widget: string, required: false }
+          - label: After
+            name: after
+            widget: object
+            required: false
+            hint: Usually the final comp.
+            fields:
+              - { label: Image, name: src, widget: image, required: false }
+              - { label: Name, name: label, widget: string, default: Final, required: false }
+              - { label: Description (alt text), name: alt, widget: string, required: false }
+          - label: Other passes
+            name: passes
+            widget: list
+            required: false
+            label_singular: pass
+            summary: "{{fields.label}}"
+            hint: Optional extras such as Layout, CG render or Matte paint. Viewers can swap them in on the right side of the slider.
+            fields:
+              - { label: Name, name: label, widget: string, hint: "e.g. Layout, CG render, Matte paint" }
+              - { label: Image, name: src, widget: image }
+              - { label: Description (alt text), name: alt, widget: string, required: false }
+
+  - name: settings
+    label: Site settings
+    files:
+      - name: site
+        label: Name, bio & contact
+        file: content/site.json
+        format: json
+        fields:
+          - { label: Your name, name: name, widget: string }
+          - label: One-line description
+            name: tagline
+            widget: string
+            hint: e.g. Environment artist & matte painter — Portland, OR
+          - label: Search engine description
+            name: description
+            widget: text
+            hint: One or two sentences shown under the link in Google results.
+          - { label: Email, name: email, widget: string }
+          - { label: Location, name: location, widget: string }
+          - label: Availability
+            name: availability
+            widget: string
+            required: false
+            hint: e.g. "Available from March 2027" — shown under your name with a green dot. Leave empty to hide.
+          - { label: IMDb link, name: imdb, widget: string, required: false }
+          - { label: LinkedIn link, name: linkedin, widget: string, required: false }
+          - label: Website address
+            name: url
+            widget: string
+            required: false
+            hint: Your live site's address, e.g. https://yourname.com (used for link previews).
+          - label: Showreel
+            name: reel
+            widget: object
+            fields:
+              - label: Reel link
+                name: url
+                widget: string
+                hint: Paste the Vimeo or YouTube link, e.g. https://vimeo.com/123456789
+              - label: Poster frame
+                name: poster
+                widget: image
+                hint: The still shown before the reel plays, and behind your name at the top of the home page.
+              - { label: Caption, name: caption, widget: string, required: false }
+          - label: Projects in the top carousel
+            name: heroProjects
+            widget: relation
+            collection: projects
+            value_field: slug
+            search_fields: [title]
+            display_fields: [title]
+            multiple: true
+            required: false
+            hint: Pick up to 3–4. Leave empty to use the first three projects.
+          - label: Bio
+            name: bio
+            widget: list
+            label_singular: paragraph
+            field: { label: Paragraph, name: paragraph, widget: text }
+          - label: Credits
+            name: credits
+            widget: list
+            label_singular: credit
+            summary: "{{fields.year}} — {{fields.title}}"
+            fields:
+              - { label: Year, name: year, widget: number, value_type: int }
+              - { label: Title, name: title, widget: string }
+              - { label: Studio, name: studio, widget: string }
+              - { label: Role, name: role, widget: string }
+          - label: Software
+            name: software
+            widget: list
+            label_singular: group
+            summary: "{{fields.group}}"
+            fields:
+              - { label: Group, name: group, widget: string, hint: "e.g. Paint, 3D, Render, Comp" }
+              - { label: Programs, name: items, widget: list }

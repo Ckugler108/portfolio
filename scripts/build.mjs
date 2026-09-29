@@ -23,13 +23,45 @@ const ALL_FORMATS = [
 const readJson = async (f) => JSON.parse(await fs.readFile(path.join(ROOT, f), 'utf8'));
 const FORMATS = PREVIEW ? ALL_FORMATS.filter(([ext]) => ext !== 'webp') : ALL_FORMATS;
 const site = await readJson('content/site.json');
-const projects = await readJson('content/projects.json');
+// One JSON file per project in content/projects/ (this is what the /admin editor writes).
+// Sorted by "order" (lowest first), then newest year first.
+const projectFiles = (await fs.readdir(path.join(ROOT, 'content/projects'))).filter((f) => f.endsWith('.json'));
+const projects = (await Promise.all(projectFiles.map((f) => readJson(`content/projects/${f}`).then((p) => ({ ...p, _file: f })))))
+  .sort((a, b) => (a.order ?? 999) - (b.order ?? 999) || (b.year ?? 0) - (a.year ?? 0));
+
+// Image paths may be written as "/images/x/y.jpg" (admin editor) or "x/y.jpg"; both mean images/x/y.jpg.
+const img = (src) => String(src || '').replace(/^\/?(images\/)?/, '');
+for (const p of projects) {
+  p.tools = Array.isArray(p.tools) ? p.tools : String(p.tools || '').split(',').map((t) => t.trim()).filter(Boolean);
+  p.stills = (p.stills || []).map((s) => ({ ...s, src: img(s.src) }));
+  // Breakdown: "before" (plate) and "after" (final), plus optional extra passes.
+  // Kept internally as [before, after, ...passes].
+  const b = p.breakdown || {};
+  const layer = (x, label) => x && x.src ? { label: x.label || label, src: img(x.src), alt: x.alt || '' } : null;
+  const before = layer(b.before, 'Plate');
+  const after = layer(b.after, 'Final');
+  p._bdError = (before && !after) || (!before && after);
+  p.breakdownLayers = before && after
+    ? [before, after, ...(b.passes || []).map((x) => layer(x, 'Pass')).filter(Boolean)]
+    : [];
+}
+
+// Reel: paste any Vimeo or YouTube link; provider + id are worked out here.
+if (site.reel) {
+  const u = site.reel.url || '';
+  const yt = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/);
+  const vm = u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (yt) Object.assign(site.reel, { provider: 'youtube', id: yt[1] });
+  else if (vm) Object.assign(site.reel, { provider: 'vimeo', id: vm[1] });
+  if (site.reel.poster) site.reel.poster = img(site.reel.poster);
+  if (!site.reel.id) delete site.reel;
+}
 
 // ---------- validation ----------
 const errors = [];
 const slugs = new Set();
 projects.forEach((p, i) => {
-  const at = `projects[${i}]${p.slug ? ` (${p.slug})` : ''}`;
+  const at = `content/projects/${p._file}`;
   for (const k of ['title', 'slug', 'show', 'studio', 'year', 'role', 'description'])
     if (p[k] === undefined || p[k] === '') errors.push(`${at}: missing "${k}"`);
   if (p.slug && !/^[a-z0-9-]+$/.test(p.slug)) errors.push(`${at}: slug must be lowercase letters, digits and dashes`);
@@ -38,12 +70,13 @@ projects.forEach((p, i) => {
   if (!Array.isArray(p.tools)) errors.push(`${at}: "tools" must be an array`);
   if (!Array.isArray(p.stills) || !p.stills.length) errors.push(`${at}: needs at least one still`);
   for (const s of p.stills || []) if (!s.src || typeof s.alt !== 'string') errors.push(`${at}: every still needs "src" and "alt"`);
-  for (const l of p.breakdownLayers || []) if (!l.src || !l.label) errors.push(`${at}: every breakdown layer needs "label" and "src"`);
+  if (p._bdError) errors.push(`${at}: the breakdown needs both a "before" and an "after" image (or neither)`);
 });
 if (errors.length) {
   console.error('content errors:\n  ' + errors.join('\n  '));
   process.exit(1);
 }
+if (!site.reel) console.warn('note: no reel link set in content/site.json (the Watch reel button is hidden)');
 
 // ---------- images ----------
 const imageSrcs = new Set();
@@ -93,11 +126,23 @@ const t0 = Date.now();
 const encodedCount = await pool(imageSrcs, 4, processImage);
 console.log(`images: ${imageSrcs.size} sources, ${encodedCount} files encoded (${((Date.now() - t0) / 1000).toFixed(1)}s)`);
 
+// Breakdown layers are stacked for the wipe, so every layer must share the first one's shape.
+for (const p of projects) {
+  const L = p.breakdownLayers;
+  if (L.length < 2) continue;
+  const ratio = (src) => manifest[src].width / manifest[src].height;
+  const bad = L.filter((l) => Math.abs(ratio(l.src) - ratio(L[0].src)) > 0.01);
+  if (bad.length) {
+    console.error(`content error in ${p._file}: breakdown images must all be the same size as "${L[0].label}" (${manifest[L[0].src].width}×${manifest[L[0].src].height}). Different: ${bad.map((l) => `"${l.label}" (${manifest[l.src].width}×${manifest[l.src].height})`).join(', ')}`);
+    process.exit(1);
+  }
+}
+
 
 // ---------- html helpers ----------
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const pad = (n, l = 2) => String(n).padStart(l, '0');
-const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+const plural = (n, w, pl = w + 's') => `${n} ${n === 1 ? w : pl}`;
 
 function picture(src, root, { alt = '', sizes = '100vw', eager = false, cls = '' } = {}) {
   const m = manifest[src];
@@ -211,11 +256,11 @@ function splitCard(p, root) {
   const L = p.breakdownLayers;
   const sizes = '(min-width: 768px) 360px, 82vw';
   return `<a class="card split" href="${projHref(root, p)}#breakdown">
-${picture(L.at(-1).src, root, { alt: '', sizes })}
+${picture(L[1].src, root, { alt: '', sizes })}
 <span class="split-before">${picture(L[0].src, root, { alt: '', sizes })}</span>
 <span class="split-line" aria-hidden="true"></span>
-<span class="tag split-a">${esc(L[0].label)}</span><span class="tag split-b">${esc(L.at(-1).label)}</span>
-<span class="card-info"><span class="card-title">${esc(p.title)} <span class="yr">(${esc(p.year)})</span></span><span class="card-meta">${esc(category(p))} · ${plural(L.length, 'layer')}</span></span>
+<span class="tag split-a">${esc(L[0].label)}</span><span class="tag split-b">${esc(L[1].label)}</span>
+<span class="card-info"><span class="card-title">${esc(p.title)} <span class="yr">(${esc(p.year)})</span></span><span class="card-meta">${esc(category(p))} · ${L.length > 2 ? `before / after + ${plural(L.length - 2, 'pass', 'passes')}` : 'before / after'}</span></span>
 </a>`;
 }
 
@@ -342,22 +387,20 @@ ${p.stills.map((s, k) => `<a class="still" href="${largestJpg(s.src, root)}" dat
   let breakdown = '';
   if (layers.length >= 2) {
     const l0 = manifest[layers[0].src];
+    const passes = layers.length > 2;
     breakdown = `<section id="breakdown" class="section" aria-labelledby="bd-h" data-breakdown>
-<div class="section-head"><h2 id="bd-h">Breakdown</h2><span class="count">${plural(layers.length, 'layer')}</span></div>
-<div class="bd-panel">
-<div class="tabs" role="group" aria-label="Layer shown on the right">
-${layers.map((l, k) => `<button type="button" data-layer aria-pressed="false"><span class="n">${pad(k + 1)}</span>${esc(l.label)}</button>`).join('\n')}
-</div>
+<div class="section-head"><h2 id="bd-h">Breakdown</h2><span class="count">${esc(layers[0].label)} / ${esc(layers[1].label)}${passes ? ` + ${plural(layers.length - 2, 'pass', 'passes')}` : ''}</span></div>
+<div class="bd-panel${passes ? ' has-passes' : ''}">
+${passes ? `<div class="tabs" role="group" aria-label="Compare ${esc(layers[0].label)} with">
+${layers.slice(1).map((l, k) => `<button type="button" data-layer data-i="${k + 1}" aria-pressed="${k === 0}">${esc(l.label)}</button>`).join('\n')}
+</div>` : ''}
+<div class="bd-view">
 <div class="wipe" style="--ar:${l0.width} / ${l0.height}">
-${layers.map((l, k) => `<figure class="wipe-layer" data-label="${esc(l.label)}">${picture(l.src, root, { alt: l.alt || l.label, sizes: '(min-width: 1560px) 1416px, calc(100vw - 64px)' })}<figcaption>${pad(k + 1)} ${esc(l.label)}</figcaption></figure>`).join('\n')}
+${layers.map((l) => `<figure class="wipe-layer" data-label="${esc(l.label)}">${picture(l.src, root, { alt: l.alt || l.label, sizes: '(min-width: 1560px) 1216px, calc(100vw - 64px)' })}<figcaption>${esc(l.label)}</figcaption></figure>`).join('\n')}
 <span class="tag wipe-tag a" aria-hidden="true"></span><span class="tag wipe-tag b" aria-hidden="true"></span>
 <div class="wipe-handle" role="slider" tabindex="0" aria-label="Wipe position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span class="wipe-knob">${icon.drag}</span></div>
 </div>
-<div class="wipe-ctrl">
-<button class="round-btn" type="button" data-prev aria-label="Previous layer">${icon.left}</button>
-<span data-step aria-hidden="true"></span>
-<button class="round-btn" type="button" data-next aria-label="Next layer">${icon.right}</button>
-<span class="hint">Drag across the frame. Arrow keys move the divider, Page Up / Down change layers.</span>
+<p class="wipe-hint">Drag across the frame to compare.${passes ? ' Pick a pass to change the right side.' : ''}</p>
 </div>
 <p class="vh" aria-live="polite" data-live></p>
 </div>
@@ -473,5 +516,13 @@ await fs.mkdir(path.join(DIST, 'assets/fonts'), { recursive: true });
 await fs.copyFile(path.join(ROOT, 'src/site.js'), path.join(DIST, 'assets/site.js'));
 for (const f of await fs.readdir(path.join(ROOT, 'src/fonts')))
   await fs.copyFile(path.join(ROOT, 'src/fonts', f), path.join(DIST, 'assets/fonts', f));
+
+// Content editor at /admin (not in the Artifact preview, which can't reach GitHub).
+if (!PREVIEW) {
+  const cms = path.join(ROOT, 'node_modules/@sveltia/cms/dist');
+  await fs.rm(path.join(DIST, 'admin'), { recursive: true, force: true });
+  await fs.cp(path.join(ROOT, 'admin'), path.join(DIST, 'admin'), { recursive: true });
+  await fs.cp(cms, path.join(DIST, 'admin'), { recursive: true, filter: (f) => !f.endsWith('.map') && !f.endsWith('.mjs') });
+}
 
 console.log(`pages: ${projects.length + 3} written to ${path.relative(ROOT, DIST)}/`);

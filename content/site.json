@@ -8,9 +8,8 @@
   "imdb": "https://www.imdb.com/name/nm0000000/",
   "linkedin": "https://www.linkedin.com/in/your-handle/",
   "reel": {
-    "provider": "vimeo",
-    "id": "76979871",
-    "poster": "site/reel-poster.jpg",
+    "url": "https://vimeo.com/76979871",
+    "poster": "/images/site/reel-poster.jpg",
     "caption": "Showreel 2026 — 02:30"
   },
   "bio": [
@@ -19,18 +18,78 @@
   ],
   "availability": "TODO: Available from Month YYYY. Remote or Portland.",
   "credits": [
-    { "year": 2025, "title": "Wistman's Wood", "studio": "Personal", "role": "Everything" },
-    { "year": 2024, "title": "The Rings of Power, S02", "studio": "Studio TBC", "role": "Senior Environment Artist" },
-    { "year": 2024, "title": "Avatar: The Last Airbender, S01", "studio": "Studio TBC", "role": "Environment Artist" },
-    { "year": 2024, "title": "Damsel", "studio": "Studio TBC", "role": "Matte Painter" },
-    { "year": 2019, "title": "Shazam!", "studio": "Studio TBC", "role": "Matte Painter" },
-    { "year": 2015, "title": "The Walk", "studio": "Studio TBC", "role": "Matte Painter" },
-    { "year": 2015, "title": "Bessie", "studio": "Studio TBC", "role": "Matte Painter" }
+    {
+      "year": 2025,
+      "title": "Wistman's Wood",
+      "studio": "Personal",
+      "role": "Everything"
+    },
+    {
+      "year": 2024,
+      "title": "The Rings of Power, S02",
+      "studio": "Studio TBC",
+      "role": "Senior Environment Artist"
+    },
+    {
+      "year": 2024,
+      "title": "Avatar: The Last Airbender, S01",
+      "studio": "Studio TBC",
+      "role": "Environment Artist"
+    },
+    {
+      "year": 2024,
+      "title": "Damsel",
+      "studio": "Studio TBC",
+      "role": "Matte Painter"
+    },
+    {
+      "year": 2019,
+      "title": "Shazam!",
+      "studio": "Studio TBC",
+      "role": "Matte Painter"
+    },
+    {
+      "year": 2015,
+      "title": "The Walk",
+      "studio": "Studio TBC",
+      "role": "Matte Painter"
+    },
+    {
+      "year": 2015,
+      "title": "Bessie",
+      "studio": "Studio TBC",
+      "role": "Matte Painter"
+    }
   ],
   "software": [
-    { "group": "Paint", "items": ["Photoshop", "Mari"] },
-    { "group": "3D", "items": ["Houdini", "Maya", "Blender"] },
-    { "group": "Render", "items": ["Karma", "Arnold", "V-Ray"] },
-    { "group": "Comp", "items": ["Nuke"] }
+    {
+      "group": "Paint",
+      "items": [
+        "Photoshop",
+        "Mari"
+      ]
+    },
+    {
+      "group": "3D",
+      "items": [
+        "Houdini",
+        "Maya",
+        "Blender"
+      ]
+    },
+    {
+      "group": "Render",
+      "items": [
+        "Karma",
+        "Arnold",
+        "V-Ray"
+      ]
+    },
+    {
+      "group": "Comp",
+      "items": [
+        "Nuke"
+      ]
+    }
   ]
 }

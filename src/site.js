@@ -148,7 +148,8 @@
     });
   }
 
-  // ---------- Breakdown wipe ----------
+  // ---------- Breakdown wipe: the before (plate) stays on the left; the right side is the
+  // after (final) by default, or any extra pass (layout, CG render…) picked from the pills.
   for (const root of document.querySelectorAll('[data-breakdown]')) {
     const wipe = root.querySelector('.wipe');
     const layers = [...root.querySelectorAll('.wipe-layer')];
@@ -156,38 +157,28 @@
     const handle = root.querySelector('.wipe-handle');
     const tagA = root.querySelector('.wipe-tag.a');
     const tagB = root.querySelector('.wipe-tag.b');
-    const count = root.querySelector('[data-step]');
-    const prev = root.querySelector('[data-prev]');
-    const next = root.querySelector('[data-next]');
     const live = root.querySelector('[data-live]');
     const names = layers.map((l) => l.dataset.label);
-    const steps = layers.length - 1;
-    const n2 = (k) => String(k + 1).padStart(2, '0');
-    let step = 1; // compares layer step-1 (left) with layer step (right)
+    const last = layers.length - 1;
+    let right = 1;
     let pos = 50;
 
     const setPos = (p) => {
       pos = Math.max(0, Math.min(100, p));
       wipe.style.setProperty('--pos', pos + '%');
       handle.setAttribute('aria-valuenow', String(Math.round(pos)));
-      handle.setAttribute('aria-valuetext', `${Math.round(pos)}%: ${names[step - 1]} left, ${names[step]} right`);
+      handle.setAttribute('aria-valuetext', `${Math.round(pos)}%: ${names[0]} left, ${names[right]} right`);
     };
-    const setStep = (s, announce) => {
-      step = Math.max(1, Math.min(steps, s));
-      layers.forEach((l, k) => { l.classList.toggle('is-a', k === step - 1); l.classList.toggle('is-b', k === step); });
-      buttons.forEach((b, k) => b.setAttribute('aria-pressed', String(k === step)));
-      tagA.textContent = `${n2(step - 1)} ${names[step - 1]}`;
-      tagB.textContent = `${n2(step)} ${names[step]}`;
-      count.textContent = `Step ${step} of ${steps}`;
-      prev.disabled = step === 1;
-      next.disabled = step === steps;
+    const show = (k, announce) => {
+      right = Math.max(1, Math.min(last, k));
+      layers.forEach((l, i) => { l.classList.toggle('is-a', i === 0); l.classList.toggle('is-b', i === right); });
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.i) === right)));
+      tagA.textContent = names[0];
+      tagB.textContent = names[right];
       setPos(pos);
-      if (announce) live.textContent = `Comparing ${names[step - 1]} on the left with ${names[step]} on the right.`;
+      if (announce) live.textContent = `Comparing ${names[0]} on the left with ${names[right]} on the right.`;
     };
-
-    buttons.forEach((b, k) => b.addEventListener('click', () => setStep(Math.max(1, k), true)));
-    prev.addEventListener('click', () => setStep(step - 1, true));
-    next.addEventListener('click', () => setStep(step + 1, true));
+    buttons.forEach((b) => b.addEventListener('click', () => show(Number(b.dataset.i), true)));
 
     // Drag anywhere on the frame. touch-action: pan-y keeps vertical page scroll on phones.
     let dragging = false;
@@ -211,10 +202,10 @@
       const big = e.shiftKey ? 10 : 2;
       const map = { ArrowLeft: pos - big, ArrowDown: pos - big, ArrowRight: pos + big, ArrowUp: pos + big, Home: 0, End: 100 };
       if (e.key in map) { setPos(map[e.key]); e.preventDefault(); }
-      else if (e.key === 'PageUp') { setStep(step - 1, true); e.preventDefault(); }
-      else if (e.key === 'PageDown') { setStep(step + 1, true); e.preventDefault(); }
+      else if (e.key === 'PageUp' && last > 1) { show(right === 1 ? last : right - 1, true); e.preventDefault(); }
+      else if (e.key === 'PageDown' && last > 1) { show(right === last ? 1 : right + 1, true); e.preventDefault(); }
     });
 
-    setStep(1, false);
+    show(1, false);
   }
 })();

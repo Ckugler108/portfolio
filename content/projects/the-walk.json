@@ -1,0 +1,39 @@
+{
+  "order": 50,
+  "slug": "the-walk",
+  "title": "The Walk",
+  "code": "WALK",
+  "category": "Film",
+  "show": "Feature — Sony Pictures",
+  "studio": "Studio TBC",
+  "year": 2015,
+  "role": "Matte Painter",
+  "tools": [
+    "Photoshop",
+    "Nuke",
+    "Maya"
+  ],
+  "stills": [
+    {
+      "src": "/images/the-walk/final-01.jpg",
+      "alt": "TODO alt: 1974 Manhattan skyline with the twin towers in morning haze."
+    },
+    {
+      "src": "/images/the-walk/final-02.jpg",
+      "alt": "TODO alt: High view across rooftops toward the river."
+    }
+  ],
+  "breakdown": {
+    "before": {
+      "label": "Plate",
+      "src": "/images/the-walk/bd-01-plate.jpg",
+      "alt": "Original plate: rooftop edge and wire against bluescreen."
+    },
+    "after": {
+      "label": "Final",
+      "src": "/images/the-walk/bd-05-final.jpg",
+      "alt": "Final composite with haze."
+    }
+  },
+  "description": "TODO: Replace with 3–6 plain sentences in your own words. Describe the shot, what you built, and what was hard about it."
+}

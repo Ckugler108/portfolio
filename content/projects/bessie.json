@@ -1,0 +1,22 @@
+{
+  "order": 60,
+  "slug": "bessie",
+  "title": "Bessie",
+  "code": "BESS",
+  "category": "Film",
+  "show": "TV film — HBO",
+  "studio": "Studio TBC",
+  "year": 2015,
+  "role": "Matte Painter",
+  "tools": [
+    "Photoshop",
+    "Nuke"
+  ],
+  "stills": [
+    {
+      "src": "/images/bessie/final-01.jpg",
+      "alt": "TODO alt: 1920s rural road through low fields and trees."
+    }
+  ],
+  "description": "TODO: Replace with 3–6 plain sentences in your own words. Describe the shot, what you built, and what was hard about it."
+}

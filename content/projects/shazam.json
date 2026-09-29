@@ -1,0 +1,39 @@
+{
+  "order": 40,
+  "slug": "shazam",
+  "title": "Shazam!",
+  "code": "SHZM",
+  "category": "Film",
+  "show": "Feature — Warner Bros.",
+  "studio": "Studio TBC",
+  "year": 2019,
+  "role": "Matte Painter",
+  "tools": [
+    "Photoshop",
+    "Nuke",
+    "Maya"
+  ],
+  "stills": [
+    {
+      "src": "/images/shazam/final-01.jpg",
+      "alt": "TODO alt: Winter city skyline at dusk."
+    },
+    {
+      "src": "/images/shazam/final-02.jpg",
+      "alt": "TODO alt: Street-level view of snowy rooftops."
+    }
+  ],
+  "breakdown": {
+    "before": {
+      "label": "Plate",
+      "src": "/images/shazam/bd-01-plate.jpg",
+      "alt": "Original plate: rooftop against bluescreen."
+    },
+    "after": {
+      "label": "Final",
+      "src": "/images/shazam/bd-05-final.jpg",
+      "alt": "Final composite."
+    }
+  },
+  "description": "TODO: Replace with 3–6 plain sentences in your own words. Describe the shot, what you built, and what was hard about it."
+}

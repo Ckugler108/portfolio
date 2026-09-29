@@ -1,95 +1,98 @@
 # Portfolio — environment art & matte painting
 
-A static site with plain HTML, CSS and a 6 KB vanilla JS file. A Node build script turns two JSON files into static pages and encodes responsive images. It has no framework and no client-side rendering, and every page works with JavaScript off.
+A static site with plain HTML, CSS and a small vanilla JS file, plus an editor at `/admin` for changing content without touching code. A Node build script turns the content files into static pages and encodes responsive images. Every page works with JavaScript off.
+
+## Editing content (the easy way)
+
+Open **`https://<your-site>/admin`** once the site is live on Netlify.
+
+1. **Sign in.** Choose **Sign In Using Access Token**. The dialog links to GitHub's token page with the right permission pre-selected (Contents: read and write on `Ckugler108/portfolio`). Create the token, paste it in, and your browser remembers it. It's a password, so don't share it.
+2. **Projects** lists every project. Open one, or press **New Project**, and fill in the form:
+   - **Final frames**: upload your best frames (full resolution, JPG or PNG, at least 2400 px wide if you have it). Tick **Use as the main frame** on your strongest one; it's used on the home page and the project's cards.
+   - **Breakdown** (optional): upload a **Before** (usually the plate) and an **After** (usually the final). Add **Other passes** such as Layout or CG render if you want visitors to be able to swap them in. All breakdown images for one project must be exactly the same size in pixels.
+   - **What I did**: 3–6 plain sentences. Delete the `TODO:` placeholder text.
+   - **Order**: lower numbers appear first on the home page.
+3. **Site settings** holds your name, one-line description, email, links, reel link (paste the Vimeo or YouTube URL), poster frame, bio, credits and software.
+4. Press **Save**. That commits the change to GitHub, and Netlify rebuilds the site in 1–2 minutes.
+
+If a build fails (for example, breakdown images of different sizes), the live site keeps the last working version, and Netlify's deploy log names the file and the problem.
+
+## Running it locally
 
 ```
-npm install          # installs sharp (image encoding), the only dependency
-npm run placeholders # makes stand-in images for any file named in the JSON that is missing
-npm run build        # writes dist/
+npm install          # installs sharp (image encoding) and the editor
+npm run placeholders # makes stand-in images for any referenced file that is missing
+npm run build        # writes dist/ (including dist/admin)
 npm run serve        # previews dist/ at http://localhost:8080
 ```
 
-Deploy by uploading `dist/` to any static host (Netlify, Cloudflare Pages, GitHub Pages, S3). All links are relative, so it also works from a sub-path. Only `404.html` assumes the site is at the domain root.
+Netlify builds automatically from `netlify.toml`. All site links are relative; only `404.html` assumes the site is at the domain root.
 
 ## Folder structure
 
 ```
+admin/
+  index.html, config.yml   the /admin editor (Sveltia CMS) and its form definitions
 content/
-  projects.json      every project; array order = order in the work table
-  site.json          name, tagline, email, links, reel, bio, credits, software
-images/              source masters (JPG/PNG/TIFF, any size), one folder per project slug
-  site/reel-poster.jpg
-  rings-of-power/final-01.jpg, bd-01-plate.jpg, …
+  projects/<slug>.json     one file per project (what the editor writes)
+  site.json                name, tagline, email, links, reel, bio, credits, software
+images/                    source images, any size (the editor uploads here)
 src/
-  styles.css         all styles (inlined into each page at build time)
-  site.js            reel click-to-load, hover preview, breakdown wipe
-  fonts/             self-hosted Archivo 400/600 and IBM Plex Mono 400 (woff2)
+  styles.css               all styles (inlined into each page at build time)
+  site.js                  carousel, rows, filters, reel pop-up, lightbox, breakdown slider
+  fonts/                   self-hosted Figtree (woff2)
 scripts/
-  build.mjs          validates JSON, encodes images, writes HTML
-  placeholders.mjs   generates stand-in frames (never overwrites real files)
-  serve.mjs          tiny local static server
-dist/                build output (git-ignored)
-  index.html, about/, work/<slug>/, img/, assets/
+  build.mjs                validates content, encodes images, writes HTML
+  placeholders.mjs         generates stand-in frames (never overwrites real files)
+  serve.mjs                tiny local static server
+dist/                      build output (git-ignored)
 ```
 
-## Adding a project
+## Project file format
 
-1. Make a folder `images/<slug>/` (lowercase, digits and dashes, e.g. `images/foundation/`).
-2. Put the master frames in it at full resolution. The build never upscales, and it caps output at 2400 px wide.
-   - Final frames: any aspect ratio. They are shown uncropped and full-bleed.
-   - Breakdown layers: **all layers of one project must have the same pixel dimensions**, because they are stacked for the wipe.
-3. Add an entry to `content/projects.json` where you want it to appear in the table:
+This is what the editor writes. You can also edit these files directly on GitHub.
 
 ```json
 {
+  "order": 10,
   "slug": "foundation",
   "title": "Foundation",
-  "code": "FDN_S02",
+  "category": "Series",
   "show": "Series, S02 — Apple TV+",
   "studio": "Studio name",
   "year": 2023,
   "role": "Senior Matte Painter",
   "tools": ["Photoshop", "Nuke", "Houdini"],
   "stills": [
-    { "src": "foundation/final-01.jpg", "alt": "Describe what is in the frame." }
+    { "src": "/images/foundation-final.jpg", "alt": "What is in the frame", "featured": true }
   ],
-  "breakdownLayers": [
-    { "label": "Plate",             "src": "foundation/bd-01-plate.jpg",  "alt": "…" },
-    { "label": "Layout / blockout", "src": "foundation/bd-02-layout.jpg", "alt": "…" },
-    { "label": "Render",            "src": "foundation/bd-03-render.jpg", "alt": "…" },
-    { "label": "Matte paint",       "src": "foundation/bd-04-matte.jpg",  "alt": "…" },
-    { "label": "Final comp",        "src": "foundation/bd-05-final.jpg",  "alt": "…" }
-  ],
+  "breakdown": {
+    "before": { "label": "Plate", "src": "/images/foundation-plate.jpg" },
+    "after":  { "label": "Final", "src": "/images/foundation-final.jpg" },
+    "passes": [ { "label": "CG render", "src": "/images/foundation-render.jpg" } ]
+  },
   "description": "Three to six plain sentences about what you did."
 }
 ```
 
-4. Run `npm run build`. Only new or changed images are encoded (roughly 1–2 s per image); everything else is cached in `dist/img/`.
-
-Field notes:
-
-- The key frame is the still marked `"featured": true`, or `stills[0]` if none is. It's used for the hero slide, the project's cards and tiles, and `og:image`. Choose your strongest frame for each project; one great frame is enough.
-- `breakdownLayers` can have any number of layers (2 or more) and any labels. `Wistman's Wood` uses 4 layers with its own labels. With fewer than 2 layers, or no `breakdownLayers` at all, the Breakdown section is left out and the page still reads as complete (see `Bessie`).
-- `code` is optional (a mono tag such as `ROP_S02`). `stills[].caption` is optional too; without one, the caption shows the frame size.
-- `description` can be a string or an array of paragraphs. Text starting with `TODO:` renders with a visible TODO tag.
-- The build stops with a clear message if a required field, an `alt`, or an image file is missing.
+- Image paths can be `/images/x.jpg` or `x.jpg`; both mean `images/x.jpg`.
+- `breakdown` is optional. With it, the project page gets a before/after slider (the before stays on the left; the after, or any pass the viewer picks, shows on the right), and the home page's **Plate to final** row gets a split card.
+- `category` becomes a filter pill and the tag on cards. `code` (e.g. `ROP_S02`) and `stills[].caption` are optional.
+- Text starting with `TODO:` shows a yellow TODO tag on the site.
+- The build stops with a clear message if a required field, an `alt`, or an image file is missing, if a breakdown has a before without an after, or if breakdown images differ in size.
 
 ## Placeholders to replace
 
-Everything marked `TODO` in the JSON, plus:
-
-- `site.json`: `name`, `email`, `imdb`, `linkedin`, `reel.id` (currently a public Vimeo demo video; set `provider` to `youtube` or `vimeo`), `bio`, `availability`, and `url` (set it to enable absolute `og:image` tags).
-- `projects.json`: every `studio` is `Studio TBC`, and the roles, tools and descriptions are stand-ins. Years and distributors are the real release details of each production. Check them against your own credits.
-- `images/`: all frames are generated stand-ins with "PLACEHOLDER" burned in. Replace a file by overwriting it with the same name, or point `src` at a new file. `npm run placeholders` never overwrites existing files.
+- **Site settings**: name, email, IMDb and LinkedIn links, reel link (currently a public Vimeo demo video), poster, bio, availability, website address.
+- **Projects**: every studio is `Studio TBC`, and the roles, tools and descriptions are stand-ins. Years and distributors are the real release details of each production. Check them against your own credits.
+- **Images**: all frames are generated stand-ins. Replace them through the editor, or overwrite a file on GitHub with the same name.
 
 ## How the site is laid out
 
-- **Look**: dark theme, Figtree, rounded image cards, yellow for primary buttons and active filters. The colors are tokens at the top of `src/styles.css`.
-- **Home**: a hero carousel. The first slide shows your name and a Watch reel button over the reel poster; the next slides show the projects listed in `site.json` `heroProjects`, or the first three if that's not set. It never moves by itself: viewers use the arrows, dots, swipe or arrow keys. Only slide 1's image loads with the page; the others load after it or when they're about to be shown. If `availability` is filled in (not starting with `TODO`), it appears under your name with a green dot. Next is **Plate to final**: one card per project with 2+ breakdown layers, showing the first layer and the last split down the middle, linking to that project's breakdown. Then **All work**: up to 4 across, with filter pills made from each project's `category` and a grid/list toggle. The browser remembers which view the viewer picked.
-- **Project page**: category tag, title, show and role; studio, year and tools sit in the Details panel. Then the frames (one frame shows up to 960 px wide, two sit side by side, three or more go 3 across), which open full size in a viewer with arrow-key and prev/next navigation. Then the breakdown wipe, with the layer list on the left, "What I did" beside a Details panel, and a **More work** row.
-- **Reel**: plays in a pop-up player; the Vimeo/YouTube player loads only when someone presses Watch reel. Without JavaScript the button links to the video page.
-- **Breakdown wipe**: drag with mouse or touch. On the divider, arrow keys move it and Page Up / Page Down change layers. Without JavaScript the layers show as a plain sequence.
-- **Images**: 320/640/1024/1600/2400 px in AVIF, WebP and JPG via `<picture>`, with `width`/`height` always set (CLS 0).
-- **Lighthouse** (mobile, local server): index 99/100/100/100; project page and About 100 across Performance, Accessibility, Best Practices and SEO.
-
-Extra fields: `category` on each project (`Series`, `Film`, `Personal`, or anything else; each becomes a filter pill) and optional `heroProjects` (an array of slugs) in `site.json`.
+- **Look**: dark theme, Figtree, rounded image cards, yellow for primary buttons and active filters. The colors and corner sizes are tokens at the top of `src/styles.css`.
+- **Home**: a hero carousel. The first slide shows your name and a Watch reel button over the reel poster; the next slides show the projects picked in Site settings, or the first three. It never moves by itself: viewers use the arrows, dots, swipe or arrow keys, and only slide 1's image loads with the page. If an availability line is set, it appears under your name with a green dot. Next is **Plate to final**: a split before/after card for each project with a breakdown, linking to that breakdown. Then **All work**: up to 4 across, with filter pills and a grid/list toggle. The browser remembers which view the viewer picked.
+- **Project page**: category tag, title, show and role. Then the frames (one frame shows up to 960 px wide, two sit side by side, three or more go 3 across), which open full size in a viewer. Then the breakdown slider, "What I did" beside a Details panel (studio, year, tools), and a **More work** row.
+- **Reel**: plays in a pop-up player; the Vimeo/YouTube player loads only when someone presses Watch reel.
+- **Breakdown slider**: drag with mouse or touch. On the divider, arrow keys move it and Page Up / Page Down switch passes.
+- **Images**: 320/640/1024/1600/2400 px in AVIF, WebP and JPG via `<picture>`, with `width`/`height` always set (no layout shift).
+- **Lighthouse** (mobile, local server): 99–100 on Performance and 100 on Accessibility, Best Practices and SEO.
