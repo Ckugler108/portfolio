@@ -1,0 +1,338 @@
+[
+  {
+    "slug": "rings-of-power",
+    "title": "The Rings of Power",
+    "code": "ROP_S02",
+    "category": "Series",
+    "show": "Series, S02 — Prime Video",
+    "studio": "Studio TBC",
+    "year": 2024,
+    "role": "Senior Environment Artist",
+    "tools": [
+      "Maya",
+      "Houdini",
+      "Photoshop",
+      "Nuke"
+    ],
+    "stills": [
+      {
+        "src": "rings-of-power/final-01.jpg",
+        "alt": "TODO alt: Dusk establishing frame of a mountain valley with carved stone pillars on the far cliff."
+      },
+      {
+        "src": "rings-of-power/final-02.jpg",
+        "alt": "TODO alt: Wide frame of layered ridgelines in warm haze."
+      }
+    ],
+    "breakdownLayers": [
+      {
+        "label": "Plate",
+        "src": "rings-of-power/bd-01-plate.jpg",
+        "alt": "Original plate: foreground rock ledge against bluescreen."
+      },
+      {
+        "label": "Layout / blockout",
+        "src": "rings-of-power/bd-02-layout.jpg",
+        "alt": "Grey blockout geometry for the valley and cliffs."
+      },
+      {
+        "label": "Render",
+        "src": "rings-of-power/bd-03-render.jpg",
+        "alt": "CG render of the mid-ground cliffs without atmosphere."
+      },
+      {
+        "label": "Matte paint",
+        "src": "rings-of-power/bd-04-matte.jpg",
+        "alt": "Painted sky and distant ridges added behind the render."
+      },
+      {
+        "label": "Final comp",
+        "src": "rings-of-power/bd-05-final.jpg",
+        "alt": "Final composite with depth haze and grade."
+      }
+    ],
+    "description": "TODO: Replace with 3–6 plain sentences in your own words. I built the far valley and the cliff faces for a dusk establishing shot. The plate only covered the foreground ledge, so everything past it was new. I blocked the valley out in Maya, rendered the mid-ground cliffs, and painted the sky and far ridges in Photoshop. Most of the time went into matching the haze to the plate."
+  },
+  {
+    "slug": "avatar-the-last-airbender",
+    "title": "Avatar: The Last Airbender",
+    "code": "ATLA_S01",
+    "category": "Series",
+    "show": "Series, S01 — Netflix",
+    "studio": "Studio TBC",
+    "year": 2024,
+    "role": "Environment Artist",
+    "tools": [
+      "Houdini",
+      "Maya",
+      "Photoshop",
+      "Nuke"
+    ],
+    "stills": [
+      {
+        "src": "avatar-the-last-airbender/final-01.jpg",
+        "alt": "TODO alt: Ice wall city under a pale sky."
+      },
+      {
+        "src": "avatar-the-last-airbender/final-02.jpg",
+        "alt": "TODO alt: Snowfield with distant ice walls."
+      }
+    ],
+    "breakdownLayers": [
+      {
+        "label": "Plate",
+        "src": "avatar-the-last-airbender/bd-01-plate.jpg",
+        "alt": "Original plate: snow set piece against bluescreen."
+      },
+      {
+        "label": "Layout / blockout",
+        "src": "avatar-the-last-airbender/bd-02-layout.jpg",
+        "alt": "Grey blockout of the ice walls."
+      },
+      {
+        "label": "Render",
+        "src": "avatar-the-last-airbender/bd-03-render.jpg",
+        "alt": "CG render of the ice walls."
+      },
+      {
+        "label": "Matte paint",
+        "src": "avatar-the-last-airbender/bd-04-matte.jpg",
+        "alt": "Painted sky and far mountains."
+      },
+      {
+        "label": "Final comp",
+        "src": "avatar-the-last-airbender/bd-05-final.jpg",
+        "alt": "Final composite."
+      }
+    ],
+    "description": "TODO: Replace with 3–6 plain sentences in your own words. Describe the shot, what you built, and what was hard about it."
+  },
+  {
+    "slug": "damsel",
+    "title": "Damsel",
+    "code": "DMSL",
+    "category": "Film",
+    "show": "Feature — Netflix",
+    "studio": "Studio TBC",
+    "year": 2024,
+    "role": "Matte Painter",
+    "tools": [
+      "Photoshop",
+      "Maya",
+      "Mari",
+      "Nuke"
+    ],
+    "stills": [
+      {
+        "src": "damsel/final-01.jpg",
+        "alt": "TODO alt: Dark volcanic cliffs lit from below by orange light."
+      },
+      {
+        "src": "damsel/final-02.jpg",
+        "alt": "TODO alt: Jagged rock spires in smoke."
+      }
+    ],
+    "breakdownLayers": [
+      {
+        "label": "Plate",
+        "src": "damsel/bd-01-plate.jpg",
+        "alt": "Original plate: foreground rocks against bluescreen."
+      },
+      {
+        "label": "Layout / blockout",
+        "src": "damsel/bd-02-layout.jpg",
+        "alt": "Grey blockout of the cliffs."
+      },
+      {
+        "label": "Render",
+        "src": "damsel/bd-03-render.jpg",
+        "alt": "CG render of the cliffs."
+      },
+      {
+        "label": "Matte paint",
+        "src": "damsel/bd-04-matte.jpg",
+        "alt": "Painted sky and distant spires."
+      },
+      {
+        "label": "Final comp",
+        "src": "damsel/bd-05-final.jpg",
+        "alt": "Final composite with smoke and grade."
+      }
+    ],
+    "description": "TODO: Replace with 3–6 plain sentences in your own words. Describe the shot, what you built, and what was hard about it."
+  },
+  {
+    "slug": "shazam",
+    "title": "Shazam!",
+    "code": "SHZM",
+    "category": "Film",
+    "show": "Feature — Warner Bros.",
+    "studio": "Studio TBC",
+    "year": 2019,
+    "role": "Matte Painter",
+    "tools": [
+      "Photoshop",
+      "Nuke",
+      "Maya"
+    ],
+    "stills": [
+      {
+        "src": "shazam/final-01.jpg",
+        "alt": "TODO alt: Winter city skyline at dusk."
+      },
+      {
+        "src": "shazam/final-02.jpg",
+        "alt": "TODO alt: Street-level view of snowy rooftops."
+      }
+    ],
+    "breakdownLayers": [
+      {
+        "label": "Plate",
+        "src": "shazam/bd-01-plate.jpg",
+        "alt": "Original plate: rooftop against bluescreen."
+      },
+      {
+        "label": "Layout / blockout",
+        "src": "shazam/bd-02-layout.jpg",
+        "alt": "Grey blockout of the skyline."
+      },
+      {
+        "label": "Render",
+        "src": "shazam/bd-03-render.jpg",
+        "alt": "CG render of the mid-ground buildings."
+      },
+      {
+        "label": "Matte paint",
+        "src": "shazam/bd-04-matte.jpg",
+        "alt": "Painted sky and distant skyline."
+      },
+      {
+        "label": "Final comp",
+        "src": "shazam/bd-05-final.jpg",
+        "alt": "Final composite."
+      }
+    ],
+    "description": "TODO: Replace with 3–6 plain sentences in your own words. Describe the shot, what you built, and what was hard about it."
+  },
+  {
+    "slug": "the-walk",
+    "title": "The Walk",
+    "code": "WALK",
+    "category": "Film",
+    "show": "Feature — Sony Pictures",
+    "studio": "Studio TBC",
+    "year": 2015,
+    "role": "Matte Painter",
+    "tools": [
+      "Photoshop",
+      "Nuke",
+      "Maya"
+    ],
+    "stills": [
+      {
+        "src": "the-walk/final-01.jpg",
+        "alt": "TODO alt: 1974 Manhattan skyline with the twin towers in morning haze."
+      },
+      {
+        "src": "the-walk/final-02.jpg",
+        "alt": "TODO alt: High view across rooftops toward the river."
+      }
+    ],
+    "breakdownLayers": [
+      {
+        "label": "Plate",
+        "src": "the-walk/bd-01-plate.jpg",
+        "alt": "Original plate: rooftop edge and wire against bluescreen."
+      },
+      {
+        "label": "Layout / blockout",
+        "src": "the-walk/bd-02-layout.jpg",
+        "alt": "Grey blockout of the city."
+      },
+      {
+        "label": "Render",
+        "src": "the-walk/bd-03-render.jpg",
+        "alt": "CG render of the mid-ground buildings."
+      },
+      {
+        "label": "Matte paint",
+        "src": "the-walk/bd-04-matte.jpg",
+        "alt": "Painted sky and distant city."
+      },
+      {
+        "label": "Final comp",
+        "src": "the-walk/bd-05-final.jpg",
+        "alt": "Final composite with haze."
+      }
+    ],
+    "description": "TODO: Replace with 3–6 plain sentences in your own words. Describe the shot, what you built, and what was hard about it."
+  },
+  {
+    "slug": "bessie",
+    "title": "Bessie",
+    "code": "BESS",
+    "category": "Film",
+    "show": "TV film — HBO",
+    "studio": "Studio TBC",
+    "year": 2015,
+    "role": "Matte Painter",
+    "tools": [
+      "Photoshop",
+      "Nuke"
+    ],
+    "stills": [
+      {
+        "src": "bessie/final-01.jpg",
+        "alt": "TODO alt: 1920s rural road through low fields and trees."
+      }
+    ],
+    "description": "TODO: Replace with 3–6 plain sentences in your own words. Describe the shot, what you built, and what was hard about it."
+  },
+  {
+    "slug": "wistmans-wood",
+    "title": "Wistman's Wood",
+    "code": "WSWD",
+    "category": "Personal",
+    "show": "Personal — Houdini R&D",
+    "studio": "Personal",
+    "year": 2025,
+    "role": "Everything",
+    "tools": [
+      "Houdini",
+      "Karma"
+    ],
+    "stills": [
+      {
+        "src": "wistmans-wood/final-01.jpg",
+        "alt": "TODO alt: Stunted oak trees among moss-covered boulders under an overcast sky."
+      },
+      {
+        "src": "wistmans-wood/final-02.jpg",
+        "alt": "TODO alt: Vertical frame of twisted oak trunks and mossy granite."
+      }
+    ],
+    "breakdownLayers": [
+      {
+        "label": "Scatter layout",
+        "src": "wistmans-wood/bd-01-layout.jpg",
+        "alt": "Grey scatter layout of boulders and trees."
+      },
+      {
+        "label": "Clay lookdev",
+        "src": "wistmans-wood/bd-02-render.jpg",
+        "alt": "Karma render before atmosphere."
+      },
+      {
+        "label": "Karma beauty",
+        "src": "wistmans-wood/bd-03-matte.jpg",
+        "alt": "Full beauty render with sky."
+      },
+      {
+        "label": "Final grade",
+        "src": "wistmans-wood/bd-04-final.jpg",
+        "alt": "Final graded frame with fog."
+      }
+    ],
+    "description": "TODO: Replace with 3–6 plain sentences in your own words. This is a study of the oak wood on Dartmoor. I scattered boulders and trees procedurally in Houdini and rendered in Karma. Say what you were testing and what you learned."
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "name": "Firstname Lastname",
+  "tagline": "Environment artist & matte painter — Portland, OR",
+  "description": "Portfolio of Firstname Lastname, environment artist and matte painter for film and episodic VFX. Portland, OR.",
+  "email": "name@example.com",
+  "location": "Portland, OR",
+  "url": "",
+  "imdb": "https://www.imdb.com/name/nm0000000/",
+  "linkedin": "https://www.linkedin.com/in/your-handle/",
+  "reel": {
+    "provider": "vimeo",
+    "id": "76979871",
+    "poster": "site/reel-poster.jpg",
+    "caption": "Showreel 2026 — 02:30"
+  },
+  "bio": [
+    "TODO: Two or three plain sentences. What you do, how long you have done it, where.",
+    "TODO: What kind of shots you are usually handed, and which part of the pipeline you own."
+  ],
+  "availability": "TODO: Available from Month YYYY. Remote or Portland.",
+  "credits": [
+    { "year": 2025, "title": "Wistman's Wood", "studio": "Personal", "role": "Everything" },
+    { "year": 2024, "title": "The Rings of Power, S02", "studio": "Studio TBC", "role": "Senior Environment Artist" },
+    { "year": 2024, "title": "Avatar: The Last Airbender, S01", "studio": "Studio TBC", "role": "Environment Artist" },
+    { "year": 2024, "title": "Damsel", "studio": "Studio TBC", "role": "Matte Painter" },
+    { "year": 2019, "title": "Shazam!", "studio": "Studio TBC", "role": "Matte Painter" },
+    { "year": 2015, "title": "The Walk", "studio": "Studio TBC", "role": "Matte Painter" },
+    { "year": 2015, "title": "Bessie", "studio": "Studio TBC", "role": "Matte Painter" }
+  ],
+  "software": [
+    { "group": "Paint", "items": ["Photoshop", "Mari"] },
+    { "group": "3D", "items": ["Houdini", "Maya", "Blender"] },
+    { "group": "Render", "items": ["Karma", "Arnold", "V-Ray"] },
+    { "group": "Comp", "items": ["Nuke"] }
+  ]
+}
