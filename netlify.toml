@@ -1,6 +1,6 @@
 # Netlify reads this automatically: no build settings needed in the dashboard.
 [build]
-  command = "npm ci && npm run placeholders && npm run build"
+  command = "npm ci && npm run build"
   publish = "dist"
 
 [build.environment]
