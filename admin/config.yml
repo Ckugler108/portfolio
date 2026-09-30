@@ -87,7 +87,7 @@ collections:
         min: 1
         label_singular: frame
         summary: "{{fields.alt}}"
-        hint: Your best frames, full resolution (JPG or PNG, ideally 2400 px wide or more). Each frame can have its own before/after breakdown; open the frame to add it.
+        hint: Your best frames, full resolution (JPG or PNG, ideally 2400 px wide or more). Give at least one frame per project a before/after (open the frame, then Breakdown for this frame).
         fields:
           - { label: Image, name: src, widget: image }
           - label: Description (alt text)

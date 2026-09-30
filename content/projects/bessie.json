@@ -15,7 +15,13 @@
   "stills": [
     {
       "src": "/images/bessie/final-01.jpg",
-      "alt": "TODO alt: 1920s rural road through low fields and trees."
+      "alt": "TODO alt: 1920s rural road through low fields and trees.",
+      "breakdown": {
+        "before": {
+          "label": "Plate",
+          "src": "/images/bessie/final-01-plate.jpg"
+        }
+      }
     }
   ],
   "description": "TODO: Replace with 3–6 plain sentences in your own words. Describe the shot, what you built, and what was hard about it."

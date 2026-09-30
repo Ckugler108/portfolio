@@ -76,6 +76,7 @@ if (errors.length) {
   console.error('content errors:\n  ' + errors.join('\n  '));
   process.exit(1);
 }
+for (const p of projects) if (!p.stills.some((st) => st.layers.length)) console.warn(`note: ${p._file} has no before/after yet (add a Before image to one of its frames)`);
 if (!site.reel) console.warn('note: no reel link set in content/site.json (the Watch reel button is hidden)');
 
 // ---------- images ----------
@@ -383,7 +384,7 @@ ${passes ? `<div class="tabs" role="group" aria-label="Compare ${esc(L[0].label)
 <p class="p-sub">${[p.show, p.studio, p.role].filter(Boolean).map(esc).join(' · ')}</p>
 </header>
 <section class="p-hero" aria-label="Frames" data-frames>
-${n > 1 ? `<div class="wrap thumbs" role="group" aria-label="Choose a frame">
+${n > 0 ? `<div class="wrap thumbs" role="group" aria-label="Choose a frame">
 ${p.stills.map((st, k) => `<button type="button" class="thumb" data-show="${k}" aria-pressed="${k === 0}" aria-label="Frame ${k + 1}${st.layers.length ? ', Before / after' : ''}">${picture(st.src, root, { alt: '', sizes: '(min-width: 768px) 384px, 312px' })}${st.layers.length ? '<span class="tag">Before / after</span>' : ''}</button>`).join('\n')}
 </div>` : ''}
 ${p.stills.map(panel).join('\n')}
@@ -435,7 +436,7 @@ function aboutPage() {
 
   const body = `<main id="main" class="wrap">
 <header class="about-head">
-<h1 class="hero-title">About</h1>
+<h1 class="p-title">About</h1>
 <div class="prose">${description(site.bio || [])}</div>
 </header>
 <div class="section p-body">
@@ -454,7 +455,7 @@ function aboutPage() {
 
 function notFoundPage() {
   // Served from any depth, so links are root-absolute here.
-  const body = `<main id="main" class="wrap about-head"><h1 class="hero-title">Not found</h1><p class="prose">This page does not exist. <a class="view-all" href="/">Back to the work ${icon.arrow}</a></p></main>`;
+  const body = `<main id="main" class="wrap about-head"><h1 class="p-title">Not found</h1><p class="prose">This page does not exist. <a class="view-all" href="/">Back to the work ${icon.arrow}</a></p></main>`;
   return layout({ root: '/', title: 'Not found', body });
 }
 
