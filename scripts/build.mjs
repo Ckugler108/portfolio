@@ -281,14 +281,13 @@ function workSection(root, { pick = 0, level = 2 } = {}) {
   const bdOf = (p) => (p.stills.find((st) => st.featured && st.layers.length) || p.stills.find((st) => st.layers.length) || null);
   // Hover-to-reveal: the plate wipes over the final, following the pointer. The plate image sits
   // in a <template> and only loads the first time someone hovers.
-  const scrub = (bd, sizes) => `<span class="scrub" aria-hidden="true"><template>${picture(bd.layers[0].src, root, { alt: '', sizes })}</template><span class="scrub-line"></span><span class="tag scrub-tag">${esc(bd.layers[0].label)} / ${esc(bd.layers[1].label)}</span></span>`;
 
   // Grid view: cards with the frame on top, a type tag and an italic title over the image.
   const cards = projects.map((p) => {
     const k = keyStill(p);
     const bd = bdOf(p);
     return `<li data-cat="${esc(category(p))}"><a class="pcard" href="${projHref(root, p)}">
-<span class="pcard-img"${bd && bd.src === k.src ? ' data-scrub' : ''}>${picture(k.src, root, { alt: '', sizes: '(min-width: 1100px) 460px, (min-width: 640px) 46vw, 100vw' })}${bd && bd.src === k.src ? scrub(bd, '(min-width: 1100px) 460px, 46vw') : ''}<span class="tag">${esc(category(p))}</span><span class="pcard-title">${esc(p.title)}</span></span>
+<span class="pcard-img">${picture(k.src, root, { alt: '', sizes: '(min-width: 1100px) 460px, (min-width: 640px) 46vw, 100vw' })}<span class="tag">${esc(category(p))}</span><span class="pcard-title">${esc(p.title)}</span></span>
 <span class="pcard-body"><span class="pcard-by">${esc(p.role)} · ${esc(p.studio)}</span><span class="pcard-sum">${esc(summary(p))}</span></span>
 <span class="pcard-foot"><span class="end">${esc(p.year)}</span></span>
 </a></li>`;
@@ -301,7 +300,7 @@ function workSection(root, { pick = 0, level = 2 } = {}) {
     const before = bd ? bd.layers[0] : null;
     const after = bd ? bd.layers[1] : k;
     return `<li data-cat="${esc(category(p))}"><a class="prow" href="${projHref(root, p)}">
-<span class="prow-media">${before ? `<span class="prow-before">${picture(before.src, root, { alt: '', sizes: '128px' })}</span>` : ''}<span class="prow-after"${bd ? ' data-scrub' : ''}>${picture(after.src, root, { alt: '', sizes: '(min-width: 768px) 224px, 60vw' })}${bd ? scrub(bd, '224px') + `<span class="prow-icon" aria-hidden="true">${icon.split}</span>` : ''}</span></span>
+<span class="prow-media">${before ? `<span class="prow-before">${picture(before.src, root, { alt: '', sizes: '128px' })}</span>` : ''}<span class="prow-after">${picture(after.src, root, { alt: '', sizes: '(min-width: 768px) 224px, 60vw' })}${bd ? `<span class="prow-icon" aria-hidden="true">${icon.split}</span>` : ''}</span></span>
 <span class="prow-info">
 <span class="prow-top"><span class="prow-title">${esc(p.title)}</span><span class="prow-role">${esc(p.role)} · ${esc(category(p))}</span><span class="box">${esc(p.year)}</span></span>
 <span class="prow-tools">${p.tools.map((t) => `<span class="box">${esc(t)}</span>`).join('')}</span>

@@ -14,25 +14,6 @@
   document.addEventListener('load', (e) => { if (e.target.tagName === 'IMG') reveal(e.target); }, true);
   document.addEventListener('error', (e) => { if (e.target.tagName === 'IMG') reveal(e.target); }, true);
 
-  // ---------- Hover to reveal the plate on Work cards and rows (mouse / trackpad only) ----------
-  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-    for (const el of document.querySelectorAll('[data-scrub]')) {
-      const layer = el.querySelector('.scrub');
-      const move = (e) => {
-        const r = el.getBoundingClientRect();
-        el.style.setProperty('--x', `${Math.max(0, Math.min(100, ((e.clientX - r.left) / r.width) * 100))}%`);
-      };
-      el.addEventListener('pointerenter', (e) => {
-        const t = layer.querySelector('template');
-        if (t) t.replaceWith(t.content.cloneNode(true));
-        move(e);
-        el.classList.add('is-scrub');
-      });
-      el.addEventListener('pointermove', move);
-      el.addEventListener('pointerleave', () => el.classList.remove('is-scrub'));
-    }
-  }
-
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch {} },

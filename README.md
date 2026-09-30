@@ -39,7 +39,7 @@ content/
 images/                    source images, any size (the editor uploads here)
 src/
   styles.css               all styles (inlined into each page at build time)
-  site.js                  carousel, rows, filters, reel pop-up, lightbox, breakdown slider, hover reveal
+  site.js                  carousel, rows, filters, reel pop-up, lightbox, breakdown slider
   themes/mono.css          the default look (monochrome, square, numbered); square.css is an alternative
   fonts/                   self-hosted Geist Sans and Geist Mono (woff2)
 scripts/
@@ -101,7 +101,6 @@ This is what the editor writes. You can also edit these files directly on GitHub
 - **Reel**: plays in a pop-up player; the Vimeo/YouTube player loads only when someone presses Watch reel.
 - **Breakdown slider**: drag with mouse or touch. On the divider, arrow keys move it and Page Up / Page Down switch passes.
 - **Interactive touches**:
-  - **Hover reveal**: with a mouse, hovering a row's final frame or a card's image wipes the plate in under the pointer. It is shown only on devices with a mouse; the plate loads on the first hover.
   - **Slider demo**: the first time a project's before/after slider scrolls into view, it sweeps once to show that it moves. It stops as soon as the viewer touches it, and is skipped for people who have set their device to reduce motion.
   - **Frame readouts**: each frame on a project page shows a small label with its frame number, aspect ratio and pixel size (for example `FRAME 01/02 · 2.39:1 · 2400×1004`). The before/after slider also shows its position (`WIPE 050%`).
   - **Fade-in**: images fade in as they load.
