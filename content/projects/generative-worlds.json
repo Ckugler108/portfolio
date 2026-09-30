@@ -1,0 +1,37 @@
+{
+  "order": 80,
+  "slug": "generative-worlds",
+  "title": "Generative Worlds",
+  "code": "GENW",
+  "category": "Generative",
+  "show": "Personal R&D",
+  "studio": "Personal",
+  "year": 2026,
+  "role": "Everything",
+  "tools": [
+    "ComfyUI",
+    "Photoshop",
+    "Nuke"
+  ],
+  "summary": "TODO: One line about this generative work.",
+  "stills": [
+    {
+      "src": "/images/generative-worlds/final-01.jpg",
+      "alt": "TODO alt: Describe the frame.",
+      "featured": true,
+      "breakdown": {
+        "before": {
+          "label": "Source",
+          "src": "/images/generative-worlds/final-01-plate.jpg"
+        },
+        "passes": [
+          {
+            "label": "Generated",
+            "src": "/images/generative-worlds/final-01-render.jpg"
+          }
+        ]
+      }
+    }
+  ],
+  "description": "TODO: Replace with 3–6 plain sentences in your own words. Say what the source was, which models and tools you used, and how much was paint-over and comp versus generated."
+}

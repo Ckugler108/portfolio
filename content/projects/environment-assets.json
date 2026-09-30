@@ -1,0 +1,38 @@
+{
+  "order": 90,
+  "slug": "environment-assets",
+  "title": "Environment Assets",
+  "code": "ASSETS",
+  "category": "Assets",
+  "show": "Asset library",
+  "studio": "Personal",
+  "year": 2025,
+  "role": "Modeling · Texturing · Lookdev",
+  "tools": [
+    "Houdini",
+    "Substance 3D Painter",
+    "Karma"
+  ],
+  "summary": "TODO: One line about these assets.",
+  "stills": [
+    {
+      "src": "/images/environment-assets/final-01.jpg",
+      "alt": "TODO alt: Describe the asset.",
+      "featured": true,
+      "breakdown": {
+        "before": {
+          "label": "Clay",
+          "src": "/images/environment-assets/final-01-layout.jpg"
+        },
+        "afterLabel": "Lookdev",
+        "passes": [
+          {
+            "label": "Wireframe",
+            "src": "/images/environment-assets/final-01-render.jpg"
+          }
+        ]
+      }
+    }
+  ],
+  "description": "TODO: Replace with 3–6 plain sentences in your own words. Say what the assets are, how they were built, the texel density or poly budget if it matters, and where they were used."
+}

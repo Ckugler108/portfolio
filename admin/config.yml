@@ -49,7 +49,7 @@ collections:
       - label: Type
         name: category
         widget: select
-        options: [Series, Film, Commercial, Game, Personal]
+        options: [Film, Series, Commercial, Game, Generative, Assets, Personal]
         default: Film
         hint: Becomes the filter pill and the tag on the project's cards.
       - label: Year

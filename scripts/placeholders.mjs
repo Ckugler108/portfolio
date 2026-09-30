@@ -27,6 +27,8 @@ const SCENES = {
   'a-walk-among-the-tombstones': { type: 'city',    w: 2400, h: 1004, sky: '#8a929a', fog: '#b2b8bd', far: '#737b83', mid: '#4d545b', near: '#24282c', grade: '#b8c6d4' },
   'rock-of-ages':              { type: 'city',      w: 2400, h: 1004, sky: '#e39a6c', fog: '#f0b98c', far: '#9a6a6f', mid: '#5e4150', near: '#2a1f28', grade: '#ff7a5c' },
   'the-social-network':        { type: 'city',      w: 2400, h: 1004, sky: '#2c3440', fog: '#56606c', far: '#3c4450', mid: '#2a3038', near: '#15181c', grade: '#e6b36a' },
+  'generative-worlds':         { type: 'mountains', w: 2400, h: 1350, sky: '#3a2f5c', fog: '#7a5f9a', far: '#5a4a7a', mid: '#3b3052', near: '#1a1526', grade: '#c08cff', spiky: true },
+  'environment-assets':        { type: 'forest',    w: 2400, h: 1350, sky: '#8c8c8c', fog: '#a8a8a8', far: '#7a7a7a', mid: '#5a5a5a', near: '#2e2e2e', grade: '#e0e0e0' },
   'site':                      { type: 'mountains', w: 2400, h: 1350, sky: '#a8b4bd', fog: '#cfd6da', far: '#7f8c96', mid: '#58636b', near: '#2c3236', grade: '#d0e0ff' },
 };
 // Per-file size overrides (e.g. a portrait still).

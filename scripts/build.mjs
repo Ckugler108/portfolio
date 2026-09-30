@@ -212,7 +212,10 @@ const reelUrl = reel && (reel.provider === 'youtube' ? `https://www.youtube.com/
 // The frame that represents a project: the still marked "featured", else the first.
 const keyStill = (p) => p.stills.find((s) => s.featured) || p.stills[0];
 const category = (p) => p.category || 'Film';
-const categories = [...new Set(projects.map(category))];
+// Filter pills in a fixed order; types with no projects get no pill. Unknown types go last.
+const CAT_ORDER = ['Film', 'Series', 'Commercial', 'Game', 'Generative', 'Assets', 'Personal'];
+const rank = (c) => (CAT_ORDER.includes(c) ? CAT_ORDER.indexOf(c) : CAT_ORDER.length);
+const categories = [...new Set(projects.map(category))].sort((a, b) => rank(a) - rank(b));
 const projHref = (root, p) => dir(`${root}work/${p.slug}/`);
 
 function layout({ root, title, desc, body, ogImage, current }) {
@@ -305,7 +308,7 @@ function workSection(root, { pick = 0, level = 2 } = {}) {
 <span class="prow-top"><span class="prow-title">${esc(p.title)}</span><span class="prow-role">${esc(p.role)} · ${esc(category(p))}</span><span class="box">${esc(p.year)}</span></span>
 <span class="prow-tools">${p.tools.map((t) => `<span class="box">${esc(t)}</span>`).join('')}</span>
 <span class="prow-show">${[p.show, p.studio].filter(Boolean).map(esc).join(' · ')}</span>
-${bd ? `<span class="prow-bd"><span class="lbl">Breakdown</span>${bd.layers.map((l) => esc(l.label)).join(' · ')}</span>` : ''}
+${bd ? `<span class="prow-bd"><span class="lbl">Breakdown</span>${bd.layers.map((l) => esc(l.label)).join(' · ')}</span>` : '<span class="prow-bd"></span>'}
 </span>
 <span class="prow-go" aria-hidden="true">${icon.arrow}</span>
 </a></li>`;
