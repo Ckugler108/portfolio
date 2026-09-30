@@ -1,4 +1,4 @@
-/* Variation B — "Programmatic": monochrome, Geist + Geist Mono, 1px rules, numbered items,
+/* Default look — "Programmatic": monochrome, Geist + Geist Mono, 1px rules, numbered items,
    square corners, uppercase monospace metadata. Same structure and layout as the base design. */
 
 :root {
@@ -28,7 +28,6 @@ body { letter-spacing: -.005em; }
 .kicker { color: var(--muted); }
 
 /* ----- type: lighter, tighter headings ----- */
-.logo { font-weight: 600; font-size: 17px; letter-spacing: -.02em; }
 .hero-title { font-weight: 600; letter-spacing: -.035em; font-size: 60px; }
 .p-title { font-weight: 600; letter-spacing: -.03em; }
 .tile-title { font-weight: 500; letter-spacing: -.01em; }
@@ -76,8 +75,8 @@ body { letter-spacing: -.005em; }
 .prow-title::before { content: counter(row, decimal-leading-zero); font-family: var(--mono); font-size: 12px; font-weight: 400; color: var(--dim); margin-right: 10px; }
 .prow, .pcard, .box { border-radius: 0; }
 .prow-icon { border-radius: 0; }
+.js .menu-btn { border-radius: 0; }
 
 /* ----- about + footer ----- */
 .panel { border: 1px solid var(--line); background: transparent; }
 .credits h3 { color: var(--fg); font-size: 13px; }
-.foot .logo { font-family: var(--sans); text-transform: none; letter-spacing: -.02em; font-size: 15px; }

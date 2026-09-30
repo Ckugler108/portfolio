@@ -39,8 +39,9 @@ content/
 images/                    source images, any size (the editor uploads here)
 src/
   styles.css               all styles (inlined into each page at build time)
-  site.js                  carousel, rows, filters, reel pop-up, lightbox, breakdown slider
-  fonts/                   self-hosted Figtree (woff2)
+  site.js                  carousel, rows, filters, reel pop-up, lightbox, breakdown slider, hover reveal
+  themes/mono.css          the default look (monochrome, square, numbered); square.css is an alternative
+  fonts/                   self-hosted Geist Sans and Geist Mono (woff2)
 scripts/
   build.mjs                validates content, encodes images, writes HTML
   placeholders.mjs         generates stand-in frames (never overwrites real files)
@@ -82,7 +83,7 @@ This is what the editor writes. You can also edit these files directly on GitHub
 - `summary` (optional) is the one line on grid cards; without it the first sentence of the description is used.
 - `category` becomes a filter pill and the tag on cards. `code` (e.g. `ROP_S02`) and `stills[].caption` are optional.
 - Every project should have at least one frame with a before/after; the build prints a note for any project that doesn't.
-- Text starting with `TODO:` shows a yellow TODO tag on the site.
+- Text starting with `TODO:` shows a highlighted TODO tag on the site.
 - The build stops with a clear message if a required field, an `alt`, or an image file is missing, or if a breakdown image isn't the same size as its frame.
 
 ## Placeholders to replace
@@ -93,11 +94,16 @@ This is what the editor writes. You can also edit these files directly on GitHub
 
 ## How the site is laid out
 
-- **Look**: dark theme, Geist for titles and text with Geist Mono for labels and metadata, rounded image cards, yellow for primary buttons and active filters. The colors and corner sizes are tokens at the top of `src/styles.css`.
-- **Home**: a hero carousel. The first slide shows your name and a Watch reel button over the reel poster; the next slides show the projects picked in Site settings, or the first three. It never moves by itself: viewers use the arrows, dots, swipe or arrow keys, and only slide 1's image loads with the page. If an availability line is set, it appears under your name with a green dot. Then **Work**, with filter pills and two views. The **Work** link in the top bar opens a separate Work page (`/work/`) with the same section, no banner, and every project listed. **All** shows 6 projects picked at random on every visit, with a "Show all" button for the rest; **Film / Series / Personal** show every project of that type. **List** (default): one row per project with the plate and final side by side, title, role, type, year, tool chips, show and studio, and the breakdown's layer names. **Grid**: cards with the key frame, a type tag and an italic title over the image, role and studio, a one-line summary, and a footer with frame count, before/after and year. The browser remembers which view the viewer picked.
+- **Look**: dark and monochrome. Geist is used for titles and text, and Geist Mono for uppercase labels and metadata. Corners are square with 1px rules, sections are labelled "/ Work", and projects are numbered 01, 02, 03…. This comes from `src/themes/mono.css`, the default theme, layered over `src/styles.css`. `node scripts/build.mjs --theme=none` builds the plain base look, and `--theme=square` builds the square-corner variant. Those two go to `dist-none/` and `dist-square/`.
+- **Home**: a hero carousel. The first slide shows your name and a Watch reel button over the reel poster; the next slides show the projects picked in Site settings, or the first three. It never moves by itself: viewers use the arrows, dots, swipe or arrow keys, and only slide 1's image loads with the page. If an availability line is set, it appears under your name with a green dot. Then **Work**, with filter pills and two views. The **Work** link in the top bar opens a separate Work page (`/work/`) with the same section, no banner, and every project listed. **All** shows 6 projects picked at random on every visit, with a "Show all" button for the rest; **Film / Series / Personal** show every project of that type. **List** (default): one row per project with the plate and final side by side, title, role, type, year, tool chips, show and studio, and the breakdown's layer names. **Grid**: cards with the key frame, a type tag and the title over the image, role and studio, a one-line summary, and a footer with frame count, before/after and year. The browser remembers which view the viewer picked.
 - **Project page**: every project uses the same layout and the same frame stage, so nothing moves from project to project. On desktop, a text column on the left (type and year, title, one line with show, studio and role, tool chips, "What I did") beside the frames on the right: a thumbnail strip at the top left, then the stage, then one fixed-height controls row. The stage's size depends only on the screen; each frame sits centred inside it at its own aspect ratio, letterboxed in black. A frame with a breakdown is a before/after slider (plus pass buttons if it has passes). On phones: thumbnails, then the frame edge to edge at half the screen height (cropped at the sides for wide frames; "View full size" shows the whole frame), then the title and description. The page ends with **More work**.
 - **Navigation**: every page opens at the top, including after Back/Forward. No link jumps partway down another page.
 - **Reel**: plays in a pop-up player; the Vimeo/YouTube player loads only when someone presses Watch reel.
 - **Breakdown slider**: drag with mouse or touch. On the divider, arrow keys move it and Page Up / Page Down switch passes.
+- **Interactive touches**:
+  - **Hover reveal**: with a mouse, hovering a row's final frame or a card's image wipes the plate in under the pointer. It is shown only on devices with a mouse; the plate loads on the first hover.
+  - **Slider demo**: the first time a project's before/after slider scrolls into view, it sweeps once to show that it moves. It stops as soon as the viewer touches it, and is skipped for people who have set their device to reduce motion.
+  - **Frame readouts**: each frame on a project page shows a small label with its frame number, aspect ratio and pixel size (for example `FRAME 01/02 · 2.39:1 · 2400×1004`). The before/after slider also shows its position (`WIPE 050%`).
+  - **Fade-in**: images fade in as they load.
 - **Images**: 320/640/1024/1600/2400 px in AVIF, WebP and JPG via `<picture>`, with `width`/`height` always set (no layout shift).
 - **Lighthouse** (mobile, local server): 99–100 on Performance and 100 on Accessibility, Best Practices and SEO.

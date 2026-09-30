@@ -12,8 +12,11 @@ const ROOT = path.resolve(import.meta.dirname, '..');
 // explicit index.html links, inlined JS, and the reel links out instead of embedding.
 const PREVIEW = process.argv.includes('--preview');
 // --theme=<name> layers src/themes/<name>.css over the base styles (design variations).
-const THEME = (process.argv.find((a) => a.startsWith('--theme=')) || '').slice(8);
-const DIST = path.join(ROOT, (PREVIEW ? 'preview' : 'dist') + (THEME ? `-${THEME}` : ''));
+// The programmatic look (src/themes/mono.css) is the default; --theme=none builds the plain base
+// styles and --theme=square the rounded-free variant (into dist-<theme>/ or preview-<theme>/).
+const THEME_ARG = (process.argv.find((a) => a.startsWith('--theme=')) || '').slice(8);
+const THEME = THEME_ARG === 'none' ? '' : THEME_ARG || 'mono';
+const DIST = path.join(ROOT, (PREVIEW ? 'preview' : 'dist') + (THEME_ARG ? `-${THEME_ARG}` : ''));
 const WIDTHS = PREVIEW ? [640, 1600] : [320, 640, 1024, 1600, 2400];
 const dir = (p) => (PREVIEW ? p + 'index.html' : p);
 const ALL_FORMATS = [
@@ -112,7 +115,7 @@ async function processImage(src) {
     }
   }
   const h = (w) => Math.round((height * Math.min(w, width)) / width);
-  manifest[src] = { base, width: widths.at(-1), height: h(widths.at(-1)), widths };
+  manifest[src] = { base, width: widths.at(-1), height: h(widths.at(-1)), widths, ow: width, oh: height };
   return encoded;
 }
 
@@ -277,13 +280,16 @@ function workSection(root, { pick = 0, level = 2 } = {}) {
   // (skipped while it is still TODO placeholder text), else the show line.
   const summary = (p) => p.summary || ((p.description && !/^TODO/.test(p.description)) ? p.description.split(/(?<=\.)\s/)[0] : `${p.show}`);
   const bdOf = (p) => (p.stills.find((st) => st.featured && st.layers.length) || p.stills.find((st) => st.layers.length) || null);
+  // Hover-to-reveal: the plate wipes over the final, following the pointer. The plate image sits
+  // in a <template> and only loads the first time someone hovers.
+  const scrub = (bd, sizes) => `<span class="scrub" aria-hidden="true"><template>${picture(bd.layers[0].src, root, { alt: '', sizes })}</template><span class="scrub-line"></span><span class="tag scrub-tag">${esc(bd.layers[0].label)} / ${esc(bd.layers[1].label)}</span></span>`;
 
   // Grid view: cards with the frame on top, a type tag and an italic title over the image.
   const cards = projects.map((p) => {
     const k = keyStill(p);
     const bd = bdOf(p);
     return `<li data-cat="${esc(category(p))}"><a class="pcard" href="${projHref(root, p)}">
-<span class="pcard-img">${picture(k.src, root, { alt: '', sizes: '(min-width: 1100px) 460px, (min-width: 640px) 46vw, 100vw' })}<span class="tag">${esc(category(p))}</span><span class="pcard-title">${esc(p.title)}</span></span>
+<span class="pcard-img"${bd && bd.src === k.src ? ' data-scrub' : ''}>${picture(k.src, root, { alt: '', sizes: '(min-width: 1100px) 460px, (min-width: 640px) 46vw, 100vw' })}${bd && bd.src === k.src ? scrub(bd, '(min-width: 1100px) 460px, 46vw') : ''}<span class="tag">${esc(category(p))}</span><span class="pcard-title">${esc(p.title)}</span></span>
 <span class="pcard-body"><span class="pcard-by">${esc(p.role)} · ${esc(p.studio)}</span><span class="pcard-sum">${esc(summary(p))}</span></span>
 <span class="pcard-foot"><span>${icon.frames}${plural(p.stills.length, 'frame')}</span>${bd ? `<span>${icon.split}Before / after</span>` : ''}<span class="end">${esc(p.year)}</span></span>
 </a></li>`;
@@ -296,7 +302,7 @@ function workSection(root, { pick = 0, level = 2 } = {}) {
     const before = bd ? bd.layers[0] : null;
     const after = bd ? bd.layers[1] : k;
     return `<li data-cat="${esc(category(p))}"><a class="prow" href="${projHref(root, p)}">
-<span class="prow-media">${before ? `<span class="prow-before">${picture(before.src, root, { alt: '', sizes: '128px' })}</span>` : ''}<span class="prow-after">${picture(after.src, root, { alt: '', sizes: '(min-width: 768px) 224px, 60vw' })}${bd ? `<span class="prow-icon" aria-hidden="true">${icon.split}</span>` : ''}</span></span>
+<span class="prow-media">${before ? `<span class="prow-before">${picture(before.src, root, { alt: '', sizes: '128px' })}</span>` : ''}<span class="prow-after"${bd ? ' data-scrub' : ''}>${picture(after.src, root, { alt: '', sizes: '(min-width: 768px) 224px, 60vw' })}${bd ? scrub(bd, '224px') + `<span class="prow-icon" aria-hidden="true">${icon.split}</span>` : ''}</span></span>
 <span class="prow-info">
 <span class="prow-top"><span class="prow-title">${esc(p.title)}</span><span class="prow-role">${esc(p.role)} · ${esc(category(p))}</span><span class="box">${esc(p.year)}</span></span>
 <span class="prow-tools">${p.tools.map((t) => `<span class="box">${esc(t)}</span>`).join('')}</span>
@@ -399,11 +405,13 @@ function projectPage(p, i) {
     const L = st.layers;
     const m = manifest[st.src];
     const fit = `style="--ar:${m.width} / ${m.height};--arn:${(m.width / m.height).toFixed(4)}"`;
+    // Frame data readout: number, aspect ratio and source resolution.
+    const info = `<span class="readout ro-l" aria-hidden="true">Frame ${pad(k + 1)}/${pad(n)} · ${(m.ow / m.oh).toFixed(2)}:1 · ${m.ow}×${m.oh}</span>`;
     const full = `<a class="full-link" href="${largestJpg(st.src, root)}" data-lb data-i="${k}">View full size</a>`;
     if (L.length < 2) {
       return `<div class="frame-panel${k === 0 ? ' is-on' : ''}" data-panel="${k}">
 <div class="stage"><div class="fit" ${fit}>
-<a class="still" href="${largestJpg(st.src, root)}" aria-label="Open frame ${k + 1} full size" data-lb-proxy="${k}">${picture(st.src, root, { alt: st.alt, sizes: sizesView, eager: k === 0 })}</a>
+<a class="still" href="${largestJpg(st.src, root)}" aria-label="Open frame ${k + 1} full size" data-lb-proxy="${k}">${picture(st.src, root, { alt: st.alt, sizes: sizesView, eager: k === 0 })}${info}</a>
 </div></div>
 <div class="wrap panel-bar">${st.caption ? `<span class="hint">${esc(st.caption)}</span>` : ''}${full}</div>
 </div>`;
@@ -415,6 +423,7 @@ function projectPage(p, i) {
 ${L.map((l, j) => `<figure class="wipe-layer" data-label="${esc(l.label)}">${picture(l.src, root, { alt: l.alt || l.label, sizes: sizesView, eager: k === 0 && j < 2 })}<figcaption>${esc(l.label)}</figcaption></figure>`).join('\n')}
 <span class="tag wipe-tag a" aria-hidden="true"></span><span class="tag wipe-tag b" aria-hidden="true"></span>
 <div class="wipe-handle" role="slider" tabindex="0" aria-label="Wipe position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span class="wipe-knob">${icon.drag}</span></div>
+${info}<span class="readout ro-r" aria-hidden="true" data-readout>Wipe 050%</span>
 </div>
 </div></div>
 <div class="wrap panel-bar">
@@ -521,7 +530,7 @@ if (PREVIEW) {
   // The Artifact host supplies the document skeleton for the main page.
   indexHtml = indexHtml
     .replace(/<!doctype html>\s*<html[^>]*>\s*<head>\s*<meta charset[^>]*>\s*<meta name="viewport"[^>]*>\s*/, '')
-    .replace(/<title>[^<]*<\/title>/, `<title>${{ square: 'Portfolio Square Variation', mono: 'Portfolio Programmatic Variation' }[THEME] || 'VFX Portfolio Preview'}</title>`)
+    .replace(/<title>[^<]*<\/title>/, `<title>${(THEME_ARG ? { square: 'Portfolio Square Variation', mono: 'Portfolio Programmatic Variation', none: 'Portfolio Base Variation' }[THEME_ARG] : '') || 'VFX Portfolio Preview'}</title>`)
     .replace(/<\/head>\s*<body>\s*/, '')
     .replace(/<\/body>\s*<\/html>\s*$/, '');
 }

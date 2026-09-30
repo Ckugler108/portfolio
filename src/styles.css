@@ -367,3 +367,23 @@ dialog::backdrop { background: rgba(0, 0, 0, .9); }
 .nav a, .btn, .tabs button, .kicker, .count, .view-all, .tag, .tile-meta, .label, .hint, .full-link,
 .status, .panel h3, .soft-group h4, .kv dt, .todo, .lb-bar, .pcard-foot, .chip, .credits h3, .box, .prow-bd .lbl { font-weight: 500; }
 .count, .hint, .tile-meta, .pcard-foot, .kv dt, .lb-bar, .nav a:not([aria-current="page"]) { font-weight: 400; }
+
+/* ---------- interaction ---------- */
+/* lazy images fade in as they arrive */
+.js img[loading="lazy"] { opacity: 0; transition: opacity 400ms ease; }
+.js img[loading="lazy"].is-in { opacity: 1; }
+/* hover to reveal the plate (cards and rows) */
+[data-scrub] { position: relative; }
+.scrub { position: absolute; inset: 0; z-index: 0; opacity: 0; transition: opacity 150ms ease; pointer-events: none; }
+.scrub img { width: 100%; height: 100%; object-fit: cover; clip-path: inset(0 calc(100% - var(--x, 50%)) 0 0); }
+.scrub-line { position: absolute; top: 0; bottom: 0; left: var(--x, 50%); width: 1px; background: #fff; }
+.scrub-tag { position: absolute; top: 10px; right: 10px; }
+.is-scrub .scrub { opacity: 1; }
+.is-scrub .prow-icon { opacity: 0; }
+.pcard-img .tag, .pcard-title { z-index: 2; }
+.pcard:hover .pcard-img img { transform: none; }
+/* frame data readouts on the project stage */
+.readout { position: absolute; z-index: 2; bottom: 10px; padding: 3px 7px; background: rgba(0, 0, 0, .72); color: #e5e5e5; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-variant-numeric: tabular-nums; pointer-events: none; }
+.ro-l { left: 10px; } .ro-r { right: 10px; }
+.fit .still { position: relative; }
+@media (max-width: 767px) { .ro-l { max-width: calc(100% - 130px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } }

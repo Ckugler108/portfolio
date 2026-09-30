@@ -6,6 +6,32 @@
   const toTop = () => { if (!location.hash) window.scrollTo(0, 0); };
   toTop();
   window.addEventListener('pageshow', toTop);
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- Images fade in as they arrive (lazy images only; the first frame shows at once) ----------
+  const reveal = (img) => img.classList.add('is-in');
+  document.querySelectorAll('img[loading="lazy"]').forEach((img) => { if (img.complete) reveal(img); });
+  document.addEventListener('load', (e) => { if (e.target.tagName === 'IMG') reveal(e.target); }, true);
+  document.addEventListener('error', (e) => { if (e.target.tagName === 'IMG') reveal(e.target); }, true);
+
+  // ---------- Hover to reveal the plate on Work cards and rows (mouse / trackpad only) ----------
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    for (const el of document.querySelectorAll('[data-scrub]')) {
+      const layer = el.querySelector('.scrub');
+      const move = (e) => {
+        const r = el.getBoundingClientRect();
+        el.style.setProperty('--x', `${Math.max(0, Math.min(100, ((e.clientX - r.left) / r.width) * 100))}%`);
+      };
+      el.addEventListener('pointerenter', (e) => {
+        const t = layer.querySelector('template');
+        if (t) t.replaceWith(t.content.cloneNode(true));
+        move(e);
+        el.classList.add('is-scrub');
+      });
+      el.addEventListener('pointermove', move);
+      el.addEventListener('pointerleave', () => el.classList.remove('is-scrub'));
+    }
+  }
 
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
@@ -196,6 +222,7 @@
     const tagA = root.querySelector('.wipe-tag.a');
     const tagB = root.querySelector('.wipe-tag.b');
     const live = root.querySelector('[data-live]');
+    const readout = root.querySelector('[data-readout]');
     const names = layers.map((l) => l.dataset.label);
     const last = layers.length - 1;
     let right = 1;
@@ -204,6 +231,7 @@
     const setPos = (p) => {
       pos = Math.max(0, Math.min(100, p));
       wipe.style.setProperty('--pos', pos + '%');
+      if (readout) readout.textContent = `Wipe ${String(Math.round(pos)).padStart(3, '0')}%`;
       handle.setAttribute('aria-valuenow', String(Math.round(pos)));
       handle.setAttribute('aria-valuetext', `${Math.round(pos)}%: ${names[0]} left, ${names[right]} right`);
     };
@@ -245,5 +273,34 @@
     });
 
     show(1, false);
+
+    // The first time a slider comes into view it sweeps once (plate, final, back to centre) so
+    // visitors see it moves. Any touch, click or key press stops it; skipped with reduced motion.
+    if (!reduced && 'IntersectionObserver' in window) {
+      let raf = 0;
+      const stop = () => { cancelAnimationFrame(raf); raf = -1; };
+      ['pointerdown', 'keydown', 'wheel'].forEach((ev) => wipe.addEventListener(ev, stop, { once: true }));
+      handle.addEventListener('keydown', stop, { once: true });
+      const io = new IntersectionObserver((entries) => {
+        if (!entries.some((en) => en.isIntersecting && en.intersectionRatio > 0.6)) return;
+        io.disconnect();
+        if (raf === -1) return;
+        const keys = [50, 18, 82, 50];
+        const seg = 650;
+        let t0 = 0;
+        const ease = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+        const tick = (now) => {
+          if (raf === -1) return;
+          if (!t0) t0 = now + 350;
+          const t = Math.max(0, now - t0);
+          const i = Math.min(keys.length - 2, Math.floor(t / seg));
+          const f = Math.min(1, (t - i * seg) / seg);
+          setPos(keys[i] + (keys[i + 1] - keys[i]) * ease(f));
+          if (t < seg * (keys.length - 1)) raf = requestAnimationFrame(tick);
+        };
+        raf = requestAnimationFrame(tick);
+      }, { threshold: [0, 0.6, 1] });
+      io.observe(wipe);
+    }
   }
 })();
