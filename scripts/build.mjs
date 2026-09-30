@@ -174,7 +174,6 @@ function description(text) {
 }
 
 const icon = {
-  frames: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="14" height="11" rx="1.5"/><path d="M7 19h13V9"/></svg>',
   split: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M12 3v18"/></svg>',
   left: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>',
   right: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>',
@@ -291,7 +290,7 @@ function workSection(root, { pick = 0, level = 2 } = {}) {
     return `<li data-cat="${esc(category(p))}"><a class="pcard" href="${projHref(root, p)}">
 <span class="pcard-img"${bd && bd.src === k.src ? ' data-scrub' : ''}>${picture(k.src, root, { alt: '', sizes: '(min-width: 1100px) 460px, (min-width: 640px) 46vw, 100vw' })}${bd && bd.src === k.src ? scrub(bd, '(min-width: 1100px) 460px, 46vw') : ''}<span class="tag">${esc(category(p))}</span><span class="pcard-title">${esc(p.title)}</span></span>
 <span class="pcard-body"><span class="pcard-by">${esc(p.role)} · ${esc(p.studio)}</span><span class="pcard-sum">${esc(summary(p))}</span></span>
-<span class="pcard-foot"><span>${icon.frames}${plural(p.stills.length, 'frame')}</span>${bd ? `<span>${icon.split}Before / after</span>` : ''}<span class="end">${esc(p.year)}</span></span>
+<span class="pcard-foot"><span class="end">${esc(p.year)}</span></span>
 </a></li>`;
   }).join('\n');
 
