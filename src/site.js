@@ -68,7 +68,7 @@
       for (const el of items) {
         const show = f === 'all' || el.dataset.cat === f;
         el.hidden = !show;
-        if (show && el.closest('[data-view-panel="grid"]')) n++;
+        if (show && el.closest('[data-view-panel="list"]')) n++;
       }
       if (count) count.textContent = `${n} project${n === 1 ? '' : 's'}`;
     };
@@ -79,7 +79,7 @@
     };
     filters.forEach((b) => b.addEventListener('click', () => setFilter(b.dataset.filter)));
     views.forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
-    setView(store.get('work-view') === 'list' ? 'list' : 'grid');
+    setView(store.get('work-view') === 'grid' ? 'grid' : 'list');
   }
 
   // ---------- Showreel in a modal (the link opens the video site without JS) ----------

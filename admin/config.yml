@@ -77,6 +77,11 @@ collections:
         widget: string
         required: false
         hint: Optional, e.g. ROP_S02
+      - label: Summary
+        name: summary
+        widget: string
+        required: false
+        hint: Optional one line for the home page cards. Leave empty to use the first sentence of What I did.
       - label: What I did
         name: description
         widget: text
