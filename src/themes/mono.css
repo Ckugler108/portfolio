@@ -20,7 +20,7 @@ body { letter-spacing: -.005em; }
 /* ----- metadata voice: small uppercase monospace ----- */
 .nav a, .btn, .tabs button, .kicker, .count, .view-all, .tag, .tile-meta, .label, .hint, .full-link,
 .chip, .status, .p-sub, .foot .wrap, .panel h3, .soft-group h4, .kv dt, .todo, .lb-bar,
-.credits h3, .credits .c-m, .section-head h2 {
+.credits h3, .credits .c-m, .section-head h1, .section-head h2 {
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .05em; font-weight: 400;
 }
 .nav a, .btn, .tabs button, .full-link, .foot .wrap { font-size: 12px; }
@@ -36,8 +36,8 @@ body { letter-spacing: -.005em; }
 
 /* ----- sections are ruled, labelled like a file listing ----- */
 .section-head { border-top: 1px solid var(--line); padding-top: 14px; }
-.section-head h2 { font-size: 13px; font-weight: 500; color: var(--fg); }
-.section-head h2::before { content: "/ "; color: var(--dim); }
+.section-head h1, .section-head h2 { font-size: 13px; font-weight: 500; color: var(--fg); }
+.section-head h1::before, .section-head h2::before { content: "/ "; color: var(--dim); }
 
 /* ----- controls: rectangles with 1px rules, active = inverted ----- */
 .btn { height: 36px; padding: 0 14px; border-radius: 0; border: 1px solid var(--line); }

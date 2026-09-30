@@ -239,7 +239,7 @@ ${PREVIEW ? '' : `<script src="${root}assets/site.js" defer></script>\n`}</head>
 <a class="logo" href="${root || './'}">${esc(site.name)}</a>
 <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
 <nav class="nav" id="site-nav" aria-label="Main">
-${nav(root || './', 'Work', 'work')}
+${nav(dir(`${root}work/`), 'Work', 'work')}
 ${reel ? `<a href="${esc(reelUrl)}" data-reel-open>Reel</a>` : ''}
 ${nav(dir(`${root}about/`), 'About', 'about')}
 ${site.imdb ? `<a href="${esc(site.imdb)}">IMDb</a>` : ''}
@@ -271,25 +271,8 @@ function tile(p, root) {
 </a>`;
 }
 
-// ---------- index ----------
-function indexPage() {
-  const root = '';
-  const heroSlugs = site.heroProjects?.length ? site.heroProjects : projects.slice(0, 3).map((p) => p.slug);
-  const heroProjects = heroSlugs.map((s) => projects.find((p) => p.slug === s)).filter(Boolean);
-  const slides = [];
-  // The top carousel shows featured projects only (the reel is in the top-right links).
-  const total = heroProjects.length;
-  const sizesHero = '(min-width: 1560px) 1464px, calc(100vw - 32px)';
-  heroProjects.forEach((p, k) => slides.push(`<article class="slide${k === 0 ? ' is-on' : ''}" aria-roledescription="slide" aria-label="${k + 1} of ${total}">
-${k === 0 ? picture(keyStill(p).src, root, { alt: '', sizes: sizesHero, eager: true }) : `<template class="lazy-pic">${picture(keyStill(p).src, root, { alt: '', sizes: sizesHero })}</template>`}
-<div class="slide-body">
-<p class="kicker">${esc(category(p))} · ${esc(p.year)}</p>
-<h2 class="hero-title">${esc(p.title)}</h2>
-<p class="sub">${esc(p.role)} — ${esc(p.studio)}</p>
-<div class="actions"><a class="btn btn-accent" href="${projHref(root, p)}">View project</a></div>
-</div>
-</article>`));
-
+// ---------- Work section (home page with a random pick of 6; the Work page shows everything) ----------
+function workSection(root, { pick = 0, level = 2 } = {}) {
   // One-line summary for cards: the "summary" field, else the first sentence of the description
   // (skipped while it is still TODO placeholder text), else the show line.
   const summary = (p) => p.summary || ((p.description && !/^TODO/.test(p.description)) ? p.description.split(/(?<=\.)\s/)[0] : `${p.show}`);
@@ -324,20 +307,9 @@ ${bd ? `<span class="prow-bd"><span class="lbl">Breakdown</span>${bd.layers.map(
 </a></li>`;
   }).join('\n');
 
-  const body = `<main id="main">
-<h1 class="vh">${esc(site.name)} — ${esc(site.tagline)}</h1>
-<div class="wrap hero-wrap">
-<section class="hero" data-carousel aria-roledescription="carousel" aria-label="Featured work">
-${slides.join('\n')}
-<button class="hero-arrow prev" type="button" aria-label="Previous slide">${icon.left}</button>
-<button class="hero-arrow next" type="button" aria-label="Next slide">${icon.right}</button>
-<div class="dots">${slides.map((_, k) => `<button type="button" aria-label="Go to slide ${k + 1}" aria-current="${k === 0}"></button>`).join('')}</div>
-</section>
-</div>
-
-<section id="work" class="section wrap" aria-labelledby="work-h" data-browse>
+  return `<section id="work" class="section wrap${level === 1 ? ' work-page' : ''}" aria-labelledby="work-h" data-browse${pick ? ` data-pick="${pick}"` : ''}>
 <div class="section-head">
-<h2 id="work-h">Work</h2>
+<h${level} id="work-h">Work</h${level}>
 <span class="count" data-count>${plural(projects.length, 'project')}</span>
 <div class="head-end">
 <div class="tabs" role="group" aria-label="Filter by type">
@@ -356,10 +328,61 @@ ${rows}
 <ul class="pcards" data-view-panel="grid" hidden>
 ${cards}
 </ul>
-<div class="show-all"><button class="btn btn-ghost" type="button" data-show-all hidden>Show all ${projects.length} projects</button></div>
-</section>
+${pick ? `<div class="show-all"><button class="btn btn-ghost" type="button" data-show-all hidden>Show all ${projects.length} projects</button></div>` : ''}
+</section>`;
+}
+
+function workPage() {
+  const root = '../';
+  const body = `<main id="main">
+${workSection(root, { level: 1 })}
 </main>`;
-  return layout({ root, body, ogImage: reel?.poster, current: 'work' });
+  return layout({ root, title: 'Work', desc: `Film and episodic VFX work by ${site.name}: environments, matte paintings and breakdowns.`, body, current: 'work' });
+}
+
+// ---------- index ----------
+function indexPage() {
+  const root = '';
+  const heroSlugs = site.heroProjects?.length ? site.heroProjects : projects.slice(0, 3).map((p) => p.slug);
+  const heroProjects = heroSlugs.map((s) => projects.find((p) => p.slug === s)).filter(Boolean);
+  const slides = [];
+  const total = heroProjects.length + 1;
+  const sizesHero = '(min-width: 1560px) 1464px, calc(100vw - 32px)';
+  slides.push(`<article class="slide is-on" aria-roledescription="slide" aria-label="1 of ${total}">
+${picture(reel?.poster || keyStill(projects[0]).src, root, { alt: '', sizes: sizesHero, eager: true })}
+<div class="slide-body">
+<h1 class="hero-title">${esc(site.name)}</h1>
+<p class="sub">${esc(site.tagline)}</p>
+${site.availability && !/^TODO/.test(site.availability) ? `<p class="status"><span class="dot" aria-hidden="true"></span>${esc(site.availability)}</p>` : ''}
+<div class="actions">
+${reel ? `<a class="btn btn-accent" href="${esc(reelUrl)}" data-reel-open>${icon.play}Watch reel</a>` : ''}
+<a class="btn btn-ghost" href="${dir('about/')}">About me</a>
+</div>
+</div>
+</article>`);
+  heroProjects.forEach((p, k) => slides.push(`<article class="slide" aria-roledescription="slide" aria-label="${k + 2} of ${total}">
+<template class="lazy-pic">${picture(keyStill(p).src, root, { alt: '', sizes: sizesHero })}</template>
+<div class="slide-body">
+<p class="kicker">${esc(category(p))} · ${esc(p.year)}</p>
+<h2 class="hero-title">${esc(p.title)}</h2>
+<p class="sub">${esc(p.role)} — ${esc(p.studio)}</p>
+<div class="actions"><a class="btn btn-accent" href="${projHref(root, p)}">View project</a></div>
+</div>
+</article>`));
+
+  const body = `<main id="main">
+<div class="wrap hero-wrap">
+<section class="hero" data-carousel aria-roledescription="carousel" aria-label="Featured work">
+${slides.join('\n')}
+<button class="hero-arrow prev" type="button" aria-label="Previous slide">${icon.left}</button>
+<button class="hero-arrow next" type="button" aria-label="Next slide">${icon.right}</button>
+<div class="dots">${slides.map((_, k) => `<button type="button" aria-label="Go to slide ${k + 1}" aria-current="${k === 0}"></button>`).join('')}</div>
+</section>
+</div>
+
+${workSection(root, { pick: 6, level: 2 })}
+</main>`;
+  return layout({ root, body, ogImage: reel?.poster, current: 'home' });
 }
 
 // ---------- project ----------
@@ -504,6 +527,7 @@ if (PREVIEW) {
 }
 await write('index.html', indexHtml);
 await write('about/index.html', aboutPage());
+await write('work/index.html', workPage());
 await write('404.html', notFoundPage());
 await Promise.all(projects.map((p, i) => write(`work/${p.slug}/index.html`, projectPage(p, i))));
 
@@ -522,4 +546,4 @@ if (!PREVIEW) {
   await fs.cp(cms, path.join(DIST, 'admin'), { recursive: true, filter: (f) => !f.endsWith('.map') && !f.endsWith('.mjs') });
 }
 
-console.log(`pages: ${projects.length + 3} written to ${path.relative(ROOT, DIST)}/`);
+console.log(`pages: ${projects.length + 4} written to ${path.relative(ROOT, DIST)}/`);

@@ -67,10 +67,10 @@
   }
 
   // ---------- Browse: filter pills + list/grid toggle ----------
-  // "All" shows 6 projects picked at random on every visit; the type filters show everything
-  // of that type, and "Show all" reveals the rest.
-  const PICK = 6;
+  // On the home page (data-pick="6") "All" shows 6 projects picked at random on every visit and
+  // "Show all" reveals the rest; the Work page shows everything. Type filters show every match.
   for (const root of document.querySelectorAll('[data-browse]')) {
+    const PICK = Number(root.dataset.pick) || Infinity;
     const filters = [...root.querySelectorAll('[data-filter]')];
     const views = [...root.querySelectorAll('[data-view]')];
     const panels = [...root.querySelectorAll('[data-view-panel]')];
@@ -79,7 +79,7 @@
     const total = panels[0].children.length;
     // one random order per visit, applied to both views
     const order = [...Array(total).keys()];
-    for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+    if (PICK < total) for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
     for (const p of panels) {
       const lis = [...p.children];
       order.forEach((k, pos) => { lis[k].dataset.pick = pos < PICK ? '1' : ''; p.append(lis[k]); });

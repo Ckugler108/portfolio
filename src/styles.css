@@ -141,13 +141,13 @@ html:not(.js) .hero-arrow, html:not(.js) .dots { display: none; }
 /* ---------- sections ---------- */
 .section { margin-top: 56px; scroll-margin-top: 72px; }
 .section-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 20px; }
-.section-head h2 { font-size: 28px; line-height: 1.1; font-weight: 600; letter-spacing: -.02em; }
+.section-head h1, .section-head h2 { font-size: 28px; line-height: 1.1; font-weight: 600; letter-spacing: -.02em; }
 .count { font-size: 14px; color: var(--dim); }
 .view-all { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; padding-block: 4px; }
 .view-all:hover { color: var(--accent); }
 .head-end { margin-left: auto; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 @media (max-width: 767px) {
-  .section { margin-top: 40px; } .section-head h2 { font-size: 22px; } .head-end { margin-left: 0; }
+  .section { margin-top: 40px; } .section-head h1, .section-head h2 { font-size: 22px; } .head-end { margin-left: 0; }
   [data-row-wrap] .head-end { display: none; }
   .tabs button { padding: 0 12px; }
 }
@@ -200,6 +200,7 @@ html:not(.js) .head-end { display: none; }
   .prow-go { display: none; }
 }
 
+.work-page { margin-top: 24px; }
 .show-all { display: flex; justify-content: center; margin-top: 24px; }
 .show-all [hidden] { display: none; }
 
