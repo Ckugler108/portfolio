@@ -3,7 +3,7 @@ import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const DIST = path.resolve(import.meta.dirname, '../dist');
+const DIST = path.resolve(import.meta.dirname, '..', process.env.DIR || 'dist');
 const PORT = Number(process.env.PORT) || 8080;
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.avif': 'image/avif', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml' };
 

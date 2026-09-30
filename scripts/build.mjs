@@ -11,7 +11,9 @@ const ROOT = path.resolve(import.meta.dirname, '..');
 // --preview writes preview/ for hosting as a claude.ai Artifact: fewer image files,
 // explicit index.html links, inlined JS, and the reel links out instead of embedding.
 const PREVIEW = process.argv.includes('--preview');
-const DIST = path.join(ROOT, PREVIEW ? 'preview' : 'dist');
+// --theme=<name> layers src/themes/<name>.css over the base styles (design variations).
+const THEME = (process.argv.find((a) => a.startsWith('--theme=')) || '').slice(8);
+const DIST = path.join(ROOT, (PREVIEW ? 'preview' : 'dist') + (THEME ? `-${THEME}` : ''));
 const WIDTHS = PREVIEW ? [640, 1600] : [320, 640, 1024, 1600, 2400];
 const dir = (p) => (PREVIEW ? p + 'index.html' : p);
 const ALL_FORMATS = [
@@ -179,7 +181,8 @@ const icon = {
   drag: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></svg>',
 };
 
-const css = (await fs.readFile(path.join(ROOT, 'src/styles.css'), 'utf8'))
+const css = ((await fs.readFile(path.join(ROOT, 'src/styles.css'), 'utf8')) +
+  (THEME ? '\n' + (await fs.readFile(path.join(ROOT, `src/themes/${THEME}.css`), 'utf8')) : ''))
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/\s+/g, ' ')
   .replace(/\s*([{}:;,>])\s*/g, '$1')
@@ -212,8 +215,8 @@ function layout({ root, title, desc, body, ogImage, current }) {
 <meta property="og:title" content="${esc(fullTitle)}">
 <meta property="og:description" content="${esc(desc || site.description)}">
 ${abs && ogImage ? `<meta property="og:image" content="${abs}img/${manifest[ogImage].base}-${manifest[ogImage].widths.filter((w) => w <= 1600).at(-1)}.jpg">\n` : ''}<link rel="icon" href="data:,">
-<link rel="preload" href="${root}assets/fonts/figtree-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="${root}assets/fonts/figtree-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+${(THEME === 'mono' ? ['geist-sans-latin-600-normal', 'geist-mono-latin-400-normal'] : ['figtree-latin-800-normal', 'figtree-latin-400-normal'])
+  .map((f) => `<link rel="preload" href="${root}assets/fonts/${f}.woff2" as="font" type="font/woff2" crossorigin>`).join('\n')}
 <script>document.documentElement.className='js'</script>
 <style>${css.replaceAll('{{ROOT}}', root)}</style>
 ${PREVIEW ? '' : `<script src="${root}assets/site.js" defer></script>\n`}</head>
@@ -473,7 +476,7 @@ if (PREVIEW) {
   // The Artifact host supplies the document skeleton for the main page.
   indexHtml = indexHtml
     .replace(/<!doctype html>\s*<html[^>]*>\s*<head>\s*<meta charset[^>]*>\s*<meta name="viewport"[^>]*>\s*/, '')
-    .replace(/<title>[^<]*<\/title>/, '<title>VFX Portfolio Preview</title>')
+    .replace(/<title>[^<]*<\/title>/, `<title>${{ square: 'Portfolio Square Variation', mono: 'Portfolio Programmatic Variation' }[THEME] || 'VFX Portfolio Preview'}</title>`)
     .replace(/<\/head>\s*<body>\s*/, '')
     .replace(/<\/body>\s*<\/html>\s*$/, '');
 }
@@ -485,8 +488,9 @@ await Promise.all(projects.map((p, i) => write(`work/${p.slug}/index.html`, proj
 await fs.rm(path.join(DIST, 'assets/fonts'), { recursive: true, force: true });
 await fs.mkdir(path.join(DIST, 'assets/fonts'), { recursive: true });
 await fs.copyFile(path.join(ROOT, 'src/site.js'), path.join(DIST, 'assets/site.js'));
-for (const f of await fs.readdir(path.join(ROOT, 'src/fonts')))
-  await fs.copyFile(path.join(ROOT, 'src/fonts', f), path.join(DIST, 'assets/fonts', f));
+for (const d of ['src/fonts', ...(THEME === 'mono' ? ['src/fonts-extra'] : [])])
+  for (const f of await fs.readdir(path.join(ROOT, d)))
+    await fs.copyFile(path.join(ROOT, d, f), path.join(DIST, 'assets/fonts', f));
 
 // Content editor at /admin (not in the Artifact preview, which can't reach GitHub).
 if (!PREVIEW) {
