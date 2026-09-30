@@ -12,6 +12,17 @@
     set(k, v) { try { localStorage.setItem(k, v); } catch {} },
   };
 
+  // ---------- Phone menu: links live behind a Menu button in the top right ----------
+  const bar = document.querySelector('.topbar');
+  const menuBtn = bar && bar.querySelector('.menu-btn');
+  if (menuBtn) {
+    const setOpen = (open) => { bar.classList.toggle('is-open', open); menuBtn.setAttribute('aria-expanded', String(open)); menuBtn.textContent = open ? 'Close' : 'Menu'; };
+    menuBtn.addEventListener('click', () => setOpen(!bar.classList.contains('is-open')));
+    bar.querySelectorAll('.nav a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && bar.classList.contains('is-open')) { setOpen(false); menuBtn.focus(); } });
+    document.addEventListener('click', (e) => { if (!bar.contains(e.target)) setOpen(false); });
+  }
+
   // ---------- Hero carousel ----------
   for (const root of document.querySelectorAll('[data-carousel]')) {
     const slides = [...root.querySelectorAll('.slide')];

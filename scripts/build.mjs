@@ -226,14 +226,15 @@ ${PREVIEW ? '' : `<script src="${root}assets/site.js" defer></script>\n`}</head>
 <a class="skip" href="#main">Skip to content</a>
 <header class="topbar"><div class="wrap">
 <a class="logo" href="${root || './'}">${esc(site.name)}</a>
-<nav class="nav" aria-label="Main">
+<button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+<nav class="nav" id="site-nav" aria-label="Main">
 ${nav(root || './', 'Work', 'work')}
 ${reel ? `<a href="${esc(reelUrl)}" data-reel-open>Reel</a>` : ''}
 ${nav(dir(`${root}about/`), 'About', 'about')}
 ${site.imdb ? `<a href="${esc(site.imdb)}">IMDb</a>` : ''}
 ${site.linkedin ? `<a href="${esc(site.linkedin)}">LinkedIn</a>` : ''}
-</nav>
 <a class="btn btn-ghost btn-sm" href="mailto:${esc(site.email)}">Contact</a>
+</nav>
 </div></header>
 ${body}
 <footer class="foot"><div class="wrap">
