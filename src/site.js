@@ -55,22 +55,39 @@
     window.addEventListener('load', () => setTimeout(() => { hydrate(1); hydrate(-1); }, 1500));
   }
 
-  // ---------- Browse: filter pills + grid/list toggle ----------
+  // ---------- Browse: filter pills + list/grid toggle ----------
+  // "All" shows 6 projects picked at random on every visit; the type filters show everything
+  // of that type, and "Show all" reveals the rest.
+  const PICK = 6;
   for (const root of document.querySelectorAll('[data-browse]')) {
     const filters = [...root.querySelectorAll('[data-filter]')];
     const views = [...root.querySelectorAll('[data-view]')];
     const panels = [...root.querySelectorAll('[data-view-panel]')];
-    const items = [...root.querySelectorAll('[data-cat]')];
     const count = root.querySelector('[data-count]');
+    const more = root.querySelector('[data-show-all]');
+    const total = panels[0].children.length;
+    // one random order per visit, applied to both views
+    const order = [...Array(total).keys()];
+    for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+    for (const p of panels) {
+      const lis = [...p.children];
+      order.forEach((k, pos) => { lis[k].dataset.pick = pos < PICK ? '1' : ''; p.append(lis[k]); });
+    }
+    const items = [...root.querySelectorAll('[data-cat]')];
+    let showAll = total <= PICK;
+    let current = 'all';
     const setFilter = (f) => {
+      current = f;
       filters.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === f)));
       let n = 0;
       for (const el of items) {
-        const show = f === 'all' || el.dataset.cat === f;
+        const show = f === 'all' ? (showAll || el.dataset.pick === '1') : el.dataset.cat === f;
         el.hidden = !show;
         if (show && el.closest('[data-view-panel="list"]')) n++;
       }
-      if (count) count.textContent = `${n} project${n === 1 ? '' : 's'}`;
+      const partial = f === 'all' && !showAll;
+      if (count) count.textContent = partial ? `${n} of ${total} projects` : `${n} project${n === 1 ? '' : 's'}`;
+      if (more) more.hidden = !partial;
     };
     const setView = (v) => {
       views.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
@@ -79,7 +96,9 @@
     };
     filters.forEach((b) => b.addEventListener('click', () => setFilter(b.dataset.filter)));
     views.forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
+    if (more) more.addEventListener('click', () => { showAll = true; setFilter(current); });
     setView(store.get('work-view') === 'grid' ? 'grid' : 'list');
+    setFilter('all');
   }
 
   // ---------- Showreel in a modal (the link opens the video site without JS) ----------

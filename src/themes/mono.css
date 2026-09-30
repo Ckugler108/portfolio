@@ -1,10 +1,5 @@
 /* Variation B — "Programmatic": monochrome, Geist + Geist Mono, 1px rules, numbered items,
    square corners, uppercase monospace metadata. Same structure and layout as the base design. */
-@font-face { font-family: "Geist Sans"; font-style: normal; font-weight: 400; font-display: swap; src: url({{ROOT}}assets/fonts/geist-sans-latin-400-normal.woff2) format("woff2"); }
-@font-face { font-family: "Geist Sans"; font-style: normal; font-weight: 500; font-display: swap; src: url({{ROOT}}assets/fonts/geist-sans-latin-500-normal.woff2) format("woff2"); }
-@font-face { font-family: "Geist Sans"; font-style: normal; font-weight: 600; font-display: swap; src: url({{ROOT}}assets/fonts/geist-sans-latin-600-normal.woff2) format("woff2"); }
-@font-face { font-family: "Geist Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url({{ROOT}}assets/fonts/geist-mono-latin-400-normal.woff2) format("woff2"); }
-@font-face { font-family: "Geist Mono"; font-style: normal; font-weight: 500; font-display: swap; src: url({{ROOT}}assets/fonts/geist-mono-latin-500-normal.woff2) format("woff2"); }
 
 :root {
   --bg: #0b0b0b;

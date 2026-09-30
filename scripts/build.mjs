@@ -217,7 +217,7 @@ function layout({ root, title, desc, body, ogImage, current }) {
 <meta property="og:title" content="${esc(fullTitle)}">
 <meta property="og:description" content="${esc(desc || site.description)}">
 ${abs && ogImage ? `<meta property="og:image" content="${abs}img/${manifest[ogImage].base}-${manifest[ogImage].widths.filter((w) => w <= 1600).at(-1)}.jpg">\n` : ''}<link rel="icon" href="data:,">
-${(THEME === 'mono' ? ['geist-sans-latin-600-normal', 'geist-mono-latin-400-normal'] : ['figtree-latin-800-normal', 'figtree-latin-400-normal'])
+${['geist-sans-latin-600-normal', 'geist-sans-latin-400-normal', 'geist-mono-latin-400-normal']
   .map((f) => `<link rel="preload" href="${root}assets/fonts/${f}.woff2" as="font" type="font/woff2" crossorigin>`).join('\n')}
 <script>document.documentElement.className='js'</script>
 <style>${css.replaceAll('{{ROOT}}', root)}</style>
@@ -354,6 +354,7 @@ ${rows}
 <ul class="pcards" data-view-panel="grid" hidden>
 ${cards}
 </ul>
+<div class="show-all"><button class="btn btn-ghost" type="button" data-show-all hidden>Show all ${projects.length} projects</button></div>
 </section>
 </main>`;
   return layout({ root, body, ogImage: reel?.poster, current: 'work' });
@@ -507,7 +508,7 @@ await Promise.all(projects.map((p, i) => write(`work/${p.slug}/index.html`, proj
 await fs.rm(path.join(DIST, 'assets/fonts'), { recursive: true, force: true });
 await fs.mkdir(path.join(DIST, 'assets/fonts'), { recursive: true });
 await fs.copyFile(path.join(ROOT, 'src/site.js'), path.join(DIST, 'assets/site.js'));
-for (const d of ['src/fonts', 'src/fonts-extra'])
+for (const d of ['src/fonts'])
   for (const f of await fs.readdir(path.join(ROOT, d)))
     await fs.copyFile(path.join(ROOT, d, f), path.join(DIST, 'assets/fonts', f));
 
