@@ -226,7 +226,7 @@ ${PREVIEW ? '' : `<script src="${root}assets/site.js" defer></script>\n`}</head>
 <a class="logo" href="${root || './'}">${esc(site.name)}</a>
 <nav class="nav" aria-label="Main">
 ${nav(root || './', 'Work', 'work')}
-${reel ? `<a href="${esc(reelUrl)}"${PREVIEW ? '' : ' data-reel-open'}>Reel</a>` : ''}
+${reel ? `<a href="${esc(reelUrl)}" data-reel-open>Reel</a>` : ''}
 ${nav(dir(`${root}about/`), 'About', 'about')}
 ${site.imdb ? `<a href="${esc(site.imdb)}">IMDb</a>` : ''}
 ${site.linkedin ? `<a href="${esc(site.linkedin)}">LinkedIn</a>` : ''}
@@ -239,7 +239,7 @@ ${body}
 <span>${esc(site.location)}</span>
 <span class="end">© ${year} ${esc(site.name)}. Frames © their respective studios.</span>
 </div></footer>
-${reel && !PREVIEW ? `<dialog id="reel-dialog" class="reel-modal" data-provider="${esc(reel.provider)}" data-id="${esc(reel.id)}" aria-label="Showreel">
+${reel ? `<dialog id="reel-dialog" class="reel-modal" data-provider="${esc(reel.provider)}" data-id="${esc(reel.id)}"${PREVIEW ? ' data-preview' : ''} aria-label="Showreel">
 <button class="round-btn dlg-close" type="button" aria-label="Close">${icon.close}</button>
 <div class="frame"></div>
 </dialog>\n` : ''}${PREVIEW ? `<script>${siteJs}</script>\n` : ''}</body>
@@ -272,7 +272,7 @@ ${picture(reel?.poster || keyStill(projects[0]).src, root, { alt: '', sizes: siz
 <p class="sub">${esc(site.tagline)}</p>
 ${site.availability && !/^TODO/.test(site.availability) ? `<p class="status"><span class="dot" aria-hidden="true"></span>${esc(site.availability)}</p>` : ''}
 <div class="actions">
-${reel ? `<a class="btn btn-accent" href="${esc(reelUrl)}"${PREVIEW ? '' : ' data-reel-open'}>${icon.play}Watch reel</a>` : ''}
+${reel ? `<a class="btn btn-accent" href="${esc(reelUrl)}" data-reel-open>${icon.play}Watch reel</a>` : ''}
 <a class="btn btn-ghost" href="${dir('about/')}">About me</a>
 </div>
 </div>

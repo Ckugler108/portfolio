@@ -96,12 +96,17 @@
         const { provider, id } = reelDlg.dataset;
         const iframe = document.createElement('iframe');
         iframe.src = provider === 'youtube'
-          ? `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`
+          ? `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1&modestbranding=1`
           : `https://player.vimeo.com/video/${id}?autoplay=1&dnt=1&title=0&byline=0&portrait=0`;
         iframe.title = 'Showreel';
         iframe.allow = 'autoplay; fullscreen; picture-in-picture';
         iframe.allowFullscreen = true;
-        frame.replaceChildren(iframe);
+        if ('preview' in reelDlg.dataset) {
+          const note = document.createElement('p');
+          note.className = 'reel-note';
+          note.textContent = 'On your live site the reel plays right here. This preview page cannot embed video.';
+          frame.replaceChildren(note);
+        } else frame.replaceChildren(iframe);
         reelDlg.showModal();
       });
     }

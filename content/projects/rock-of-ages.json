@@ -1,0 +1,29 @@
+{
+  "order": 76,
+  "slug": "rock-of-ages",
+  "title": "Rock of Ages",
+  "code": "ROA",
+  "category": "Film",
+  "show": "Warner Bros.",
+  "studio": "Studio TBC",
+  "year": 2012,
+  "role": "Role TBC",
+  "tools": [
+    "Photoshop",
+    "Nuke"
+  ],
+  "stills": [
+    {
+      "src": "/images/rock-of-ages/final-01.jpg",
+      "alt": "TODO alt: Sunset Strip skyline at dusk.",
+      "featured": true,
+      "breakdown": {
+        "before": {
+          "label": "Plate",
+          "src": "/images/rock-of-ages/final-01-plate.jpg"
+        }
+      }
+    }
+  ],
+  "description": "TODO: Replace with 3–6 plain sentences in your own words. Describe the shot, what you built, and what was hard about it."
+}

@@ -1,0 +1,29 @@
+{
+  "order": 5,
+  "slug": "wildwood",
+  "title": "Wildwood",
+  "code": "WLDW",
+  "category": "Film",
+  "show": "LAIKA",
+  "studio": "Studio TBC",
+  "year": 2026,
+  "role": "Role TBC",
+  "tools": [
+    "Photoshop",
+    "Nuke"
+  ],
+  "stills": [
+    {
+      "src": "/images/wildwood/final-01.jpg",
+      "alt": "TODO alt: Stop-motion forest under low evening light.",
+      "featured": true,
+      "breakdown": {
+        "before": {
+          "label": "Plate",
+          "src": "/images/wildwood/final-01-plate.jpg"
+        }
+      }
+    }
+  ],
+  "description": "TODO: Replace with 3–6 plain sentences in your own words. Describe the shot, what you built, and what was hard about it."
+}

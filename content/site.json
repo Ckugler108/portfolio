@@ -1,16 +1,16 @@
 {
-  "name": "Firstname Lastname",
+  "name": "Christian Kugler",
   "tagline": "Environment artist & matte painter — Portland, OR",
-  "description": "Portfolio of Firstname Lastname, environment artist and matte painter for film and episodic VFX. Portland, OR.",
+  "description": "Portfolio of Christian Kugler, environment artist and matte painter for film and episodic VFX. Portland, OR.",
   "email": "name@example.com",
   "location": "Portland, OR",
   "url": "",
-  "imdb": "https://www.imdb.com/name/nm0000000/",
-  "linkedin": "https://www.linkedin.com/in/your-handle/",
+  "imdb": "https://www.imdb.com/name/nm2917707/",
+  "linkedin": "https://www.linkedin.com/in/christiankugler/",
   "reel": {
-    "url": "https://vimeo.com/76979871",
+    "url": "https://youtu.be/pKRwBpkZCDc",
     "poster": "/images/site/reel-poster.jpg",
-    "caption": "Showreel 2026 — 02:30"
+    "caption": "Showreel"
   },
   "bio": [
     "TODO: Two or three plain sentences. What you do, how long you have done it, where.",
@@ -59,6 +59,36 @@
       "title": "Bessie",
       "studio": "Studio TBC",
       "role": "Matte Painter"
+    },
+    {
+      "year": 2026,
+      "title": "Wildwood",
+      "studio": "Studio TBC",
+      "role": "Role TBC"
+    },
+    {
+      "year": 2015,
+      "title": "Better Call Saul",
+      "studio": "Studio TBC",
+      "role": "Role TBC"
+    },
+    {
+      "year": 2014,
+      "title": "A Walk Among the Tombstones",
+      "studio": "Studio TBC",
+      "role": "Role TBC"
+    },
+    {
+      "year": 2012,
+      "title": "Rock of Ages",
+      "studio": "Studio TBC",
+      "role": "Role TBC"
+    },
+    {
+      "year": 2010,
+      "title": "The Social Network",
+      "studio": "Studio TBC",
+      "role": "Role TBC"
     }
   ],
   "software": [

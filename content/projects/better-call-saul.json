@@ -1,0 +1,29 @@
+{
+  "order": 72,
+  "slug": "better-call-saul",
+  "title": "Better Call Saul",
+  "code": "BCS",
+  "category": "Series",
+  "show": "AMC",
+  "studio": "Studio TBC",
+  "year": 2015,
+  "role": "Role TBC",
+  "tools": [
+    "Photoshop",
+    "Nuke"
+  ],
+  "stills": [
+    {
+      "src": "/images/better-call-saul/final-01.jpg",
+      "alt": "TODO alt: Desert road outside Albuquerque at midday.",
+      "featured": true,
+      "breakdown": {
+        "before": {
+          "label": "Plate",
+          "src": "/images/better-call-saul/final-01-plate.jpg"
+        }
+      }
+    }
+  ],
+  "description": "TODO: Replace with 3–6 plain sentences in your own words. Describe the shot, what you built, and what was hard about it."
+}

@@ -22,6 +22,11 @@ const SCENES = {
   'the-walk':                  { type: 'city',      w: 2400, h: 1004, sky: '#a9c4d7', fog: '#d2dce2', far: '#8e9ba6', mid: '#5f6b76', near: '#2e353b', grade: '#ffd9a0', towers: true },
   'bessie':                    { type: 'fields',    w: 2400, h: 1350, sky: '#e0d2a9', fog: '#ebe0bf', far: '#9d9b7c', mid: '#7b7a52', near: '#7f6041', grade: '#ffcf80' },
   'wistmans-wood':             { type: 'forest',    w: 2400, h: 1600, sky: '#c9cdc4', fog: '#d9dcd4', far: '#8f9887', mid: '#667058', near: '#3a3b2f', grade: '#d8e8c0' },
+  'wildwood':                  { type: 'forest',    w: 2400, h: 1004, sky: '#d9a36b', fog: '#e8c396', far: '#8a6f5a', mid: '#5c5a3a', near: '#2f2a1e', grade: '#ffb060' },
+  'better-call-saul':          { type: 'fields',    w: 2400, h: 1350, sky: '#b9d3e6', fog: '#e6dcc3', far: '#b89a78', mid: '#a88a5c', near: '#7a5e3c', grade: '#ffd27a' },
+  'a-walk-among-the-tombstones': { type: 'city',    w: 2400, h: 1004, sky: '#8a929a', fog: '#b2b8bd', far: '#737b83', mid: '#4d545b', near: '#24282c', grade: '#b8c6d4' },
+  'rock-of-ages':              { type: 'city',      w: 2400, h: 1004, sky: '#e39a6c', fog: '#f0b98c', far: '#9a6a6f', mid: '#5e4150', near: '#2a1f28', grade: '#ff7a5c' },
+  'the-social-network':        { type: 'city',      w: 2400, h: 1004, sky: '#2c3440', fog: '#56606c', far: '#3c4450', mid: '#2a3038', near: '#15181c', grade: '#e6b36a' },
   'site':                      { type: 'mountains', w: 2400, h: 1350, sky: '#a8b4bd', fog: '#cfd6da', far: '#7f8c96', mid: '#58636b', near: '#2c3236', grade: '#d0e0ff' },
 };
 // Per-file size overrides (e.g. a portrait still).

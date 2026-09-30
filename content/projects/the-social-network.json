@@ -1,0 +1,29 @@
+{
+  "order": 78,
+  "slug": "the-social-network",
+  "title": "The Social Network",
+  "code": "TSN",
+  "category": "Film",
+  "show": "Sony Pictures",
+  "studio": "Studio TBC",
+  "year": 2010,
+  "role": "Role TBC",
+  "tools": [
+    "Photoshop",
+    "Nuke"
+  ],
+  "stills": [
+    {
+      "src": "/images/the-social-network/final-01.jpg",
+      "alt": "TODO alt: Campus buildings at night.",
+      "featured": true,
+      "breakdown": {
+        "before": {
+          "label": "Plate",
+          "src": "/images/the-social-network/final-01-plate.jpg"
+        }
+      }
+    }
+  ],
+  "description": "TODO: Replace with 3–6 plain sentences in your own words. Describe the shot, what you built, and what was hard about it."
+}
