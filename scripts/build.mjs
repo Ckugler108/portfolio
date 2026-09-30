@@ -183,6 +183,17 @@ const icon = {
   drag: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></svg>',
 };
 
+// A stray or missing brace silently drops the rules after it, so refuse to build with one.
+for (const f of ['src/styles.css', ...(THEME ? [`src/themes/${THEME}.css`] : [])]) {
+  const t = (await fs.readFile(path.join(ROOT, f), 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
+  let depth = 0;
+  for (let i = 0; i < t.length; i++) {
+    depth += t[i] === '{' ? 1 : t[i] === '}' ? -1 : 0;
+    if (depth < 0) { console.error(`${f}: unexpected "}" on line ${t.slice(0, i).split('\n').length}`); process.exit(1); }
+  }
+  if (depth !== 0) { console.error(`${f}: ${depth} unclosed "{"`); process.exit(1); }
+}
+
 const css = ((await fs.readFile(path.join(ROOT, 'src/styles.css'), 'utf8')) +
   (THEME ? '\n' + (await fs.readFile(path.join(ROOT, `src/themes/${THEME}.css`), 'utf8')) : ''))
   .replace(/\/\*[\s\S]*?\*\//g, '')
@@ -266,22 +277,11 @@ function indexPage() {
   const heroSlugs = site.heroProjects?.length ? site.heroProjects : projects.slice(0, 3).map((p) => p.slug);
   const heroProjects = heroSlugs.map((s) => projects.find((p) => p.slug === s)).filter(Boolean);
   const slides = [];
-  const total = heroProjects.length + 1;
+  // The top carousel shows featured projects only (the reel is in the top-right links).
+  const total = heroProjects.length;
   const sizesHero = '(min-width: 1560px) 1464px, calc(100vw - 32px)';
-  slides.push(`<article class="slide is-on" aria-roledescription="slide" aria-label="1 of ${total}">
-${picture(reel?.poster || keyStill(projects[0]).src, root, { alt: '', sizes: sizesHero, eager: true })}
-<div class="slide-body">
-<h1 class="hero-title">${esc(site.name)}</h1>
-<p class="sub">${esc(site.tagline)}</p>
-${site.availability && !/^TODO/.test(site.availability) ? `<p class="status"><span class="dot" aria-hidden="true"></span>${esc(site.availability)}</p>` : ''}
-<div class="actions">
-${reel ? `<a class="btn btn-accent" href="${esc(reelUrl)}" data-reel-open>${icon.play}Watch reel</a>` : ''}
-<a class="btn btn-ghost" href="${dir('about/')}">About me</a>
-</div>
-</div>
-</article>`);
-  heroProjects.forEach((p, k) => slides.push(`<article class="slide" aria-roledescription="slide" aria-label="${k + 2} of ${total}">
-<template class="lazy-pic">${picture(keyStill(p).src, root, { alt: '', sizes: sizesHero })}</template>
+  heroProjects.forEach((p, k) => slides.push(`<article class="slide${k === 0 ? ' is-on' : ''}" aria-roledescription="slide" aria-label="${k + 1} of ${total}">
+${k === 0 ? picture(keyStill(p).src, root, { alt: '', sizes: sizesHero, eager: true }) : `<template class="lazy-pic">${picture(keyStill(p).src, root, { alt: '', sizes: sizesHero })}</template>`}
 <div class="slide-body">
 <p class="kicker">${esc(category(p))} · ${esc(p.year)}</p>
 <h2 class="hero-title">${esc(p.title)}</h2>
@@ -325,6 +325,7 @@ ${bd ? `<span class="prow-bd"><span class="lbl">Breakdown</span>${bd.layers.map(
   }).join('\n');
 
   const body = `<main id="main">
+<h1 class="vh">${esc(site.name)} — ${esc(site.tagline)}</h1>
 <div class="wrap hero-wrap">
 <section class="hero" data-carousel aria-roledescription="carousel" aria-label="Featured work">
 ${slides.join('\n')}

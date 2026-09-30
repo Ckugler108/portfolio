@@ -100,7 +100,6 @@ svg { display: block; }
   html:not(.js) .topbar .wrap { flex-wrap: wrap; height: auto; padding-block: 10px; }
   html:not(.js) .nav { width: 100%; flex-wrap: wrap; gap: 8px 18px; margin: 0; }
 }
-}
 
 /* ---------- hero carousel ---------- */
 .hero-wrap { padding-top: 24px; }
