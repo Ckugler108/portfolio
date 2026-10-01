@@ -33,7 +33,7 @@
 @media (min-width: 1280px) { :root { --pad: 48px; } }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scrollbar-gutter: stable; }
 body { margin: 0; background: var(--bg); color: var(--fg); font: 400 16px/1.55 var(--sans); letter-spacing: -.005em; -webkit-font-smoothing: antialiased; }
 h1, h2, h3, h4, p, dl, dd, ul, ol, figure { margin: 0; padding: 0; }
 ul, ol { list-style: none; }

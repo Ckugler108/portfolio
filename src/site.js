@@ -112,11 +112,24 @@
       panels.forEach((p) => { p.hidden = p.dataset.viewPanel !== v; });
       store.set('work-view', v);
     };
+    // Reserve the height of the tallest filter so switching filters never shrinks the page
+    // (which would pull the footer up and yank the scroll position).
+    const reserve = () => {
+      const keep = current;
+      root.style.minHeight = '';
+      let max = 0;
+      for (const b of filters) { setFilter(b.dataset.filter); max = Math.max(max, root.offsetHeight); }
+      setFilter(keep);
+      root.style.minHeight = `${max}px`;
+    };
     filters.forEach((b) => b.addEventListener('click', () => setFilter(b.dataset.filter)));
-    views.forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
-    if (more) more.addEventListener('click', () => { showAll = true; setFilter(current); });
+    views.forEach((b) => b.addEventListener('click', () => { setView(b.dataset.view); reserve(); }));
+    if (more) more.addEventListener('click', () => { showAll = true; setFilter(current); reserve(); });
     setView(store.get('work-view') === 'grid' ? 'grid' : 'list');
     setFilter('all');
+    reserve();
+    let rt;
+    window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(reserve, 150); });
   }
 
   // ---------- Showreel in a modal (the link opens the video site without JS) ----------
