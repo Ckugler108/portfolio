@@ -74,7 +74,6 @@ body { letter-spacing: -.005em; }
 .prows > li { counter-increment: row; }
 .prow-title::before { content: counter(row, decimal-leading-zero); font-family: var(--mono); font-size: 12px; font-weight: 400; color: var(--dim); margin-right: 10px; }
 .prow, .pcard, .box { border-radius: 0; }
-.prow-icon { border-radius: 0; }
 .js .menu-btn { border-radius: 0; }
 
 /* ----- about + footer ----- */

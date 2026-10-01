@@ -1,7 +1,7 @@
 /* Variation A — "Square": the current design with no rounded corners anywhere. */
 :root { --r-sm: 0; --r: 0; --r-lg: 0; }
 .skip, .todo, .btn, .chip, .round-btn, .tabs, .tabs button, .views, .views button,
-.hero-arrow, .wipe-knob, .status .dot, .dots button::after, .box, .prow-icon { border-radius: 0; }
+.hero-arrow, .wipe-knob, .status .dot, .dots button::after, .box { border-radius: 0; }
 /* slide dots become short bars */
 .dots button::after { width: 14px; height: 3px; }
 .dots button[aria-current="true"]::after { width: 28px; }

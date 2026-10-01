@@ -174,7 +174,6 @@ function description(text) {
 }
 
 const icon = {
-  split: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M12 3v18"/></svg>',
   left: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>',
   right: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>',
   arrow: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
@@ -296,14 +295,12 @@ function workSection(root, { pick = 0, level = 2 } = {}) {
 </a></li>`;
   }).join('\n');
 
-  // List view (default): one row per project — plate + final, title, role, year, tools, show, breakdown.
+  // List view (default): one row per project — key frame, title, role, year, tools, show, breakdown.
   const rows = projects.map((p) => {
     const k = keyStill(p);
     const bd = bdOf(p);
-    const before = bd ? bd.layers[0] : null;
-    const after = bd ? bd.layers[1] : k;
     return `<li data-cat="${esc(category(p))}"><a class="prow" href="${projHref(root, p)}">
-<span class="prow-media">${before ? `<span class="prow-before">${picture(before.src, root, { alt: '', sizes: '128px' })}</span>` : ''}<span class="prow-after">${picture(after.src, root, { alt: '', sizes: '(min-width: 768px) 224px, 60vw' })}${bd ? `<span class="prow-icon" aria-hidden="true">${icon.split}</span>` : ''}</span></span>
+<span class="prow-media"><span class="prow-after">${picture(k.src, root, { alt: '', sizes: '(min-width: 768px) 352px, 100vw' })}</span></span>
 <span class="prow-info">
 <span class="prow-top"><span class="prow-title">${esc(p.title)}</span><span class="prow-role">${esc(p.role)} · ${esc(category(p))}</span><span class="box">${esc(p.year)}</span></span>
 <span class="prow-tools">${p.tools.map((t) => `<span class="box">${esc(t)}</span>`).join('')}</span>
