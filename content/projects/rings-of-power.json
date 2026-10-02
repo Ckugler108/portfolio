@@ -14,10 +14,16 @@
     "Photoshop",
     "Nuke"
   ],
+  "brief": {
+    "problem": "TODO: The plate only covered the foreground ledge; everything past it had to be built.",
+    "approach": "TODO: Blocked the valley in Maya, rendered the mid-ground cliffs, painted sky and far ridges in Photoshop.",
+    "result": "TODO: A dusk establishing frame that held up through a slow push-in."
+  },
   "stills": [
     {
       "src": "/images/rings-of-power/final-01.jpg",
       "alt": "TODO alt: Dusk establishing frame of a mountain valley with carved stone pillars on the far cliff.",
+      "video": "/images/rings-of-power/final-01-loop.webm",
       "breakdown": {
         "before": {
           "label": "Plate",

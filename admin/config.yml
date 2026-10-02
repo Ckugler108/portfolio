@@ -82,6 +82,26 @@ collections:
         widget: string
         required: false
         hint: Optional one line for the home page cards. Leave empty to use the first sentence of What I did.
+      - label: Brief
+        name: brief
+        widget: object
+        required: false
+        collapsed: true
+        hint: Optional. Three short lines a supervisor can skim, shown above What I did.
+        fields:
+          - { label: Problem, name: problem, widget: string, required: false, hint: "What was hard about the shot" }
+          - { label: Approach, name: approach, widget: string, required: false, hint: "How you solved it" }
+          - { label: Result, name: result, widget: string, required: false, hint: "What it achieved" }
+      - label: How it was made
+        name: madeWith
+        widget: list
+        required: false
+        label_singular: part
+        summary: "{{fields.label}} {{fields.percent}}%"
+        hint: Optional, recommended for Generative work. Rough shares of the frame, e.g. Generated 40, Paint-over 35, Comp 25. Shown as one bar; the numbers don't have to add to 100.
+        fields:
+          - { label: Name, name: label, widget: string, hint: "e.g. Generated, Painted, CG render, Comp" }
+          - { label: Percent, name: percent, widget: number, value_type: int, min: 1, max: 100 }
       - label: What I did
         name: description
         widget: text
@@ -106,6 +126,11 @@ collections:
             default: false
             hint: Shown on the home page and the project's cards. Tick it on one frame per project.
           - { label: Caption, name: caption, widget: string, required: false }
+          - label: Motion loop
+            name: video
+            widget: file
+            required: false
+            hint: Optional short silent clip of this shot (MP4, 6–10 seconds, 1920 px wide, under 8 MB). It plays on loop on the project page. If the frame has a breakdown, a Loop button switches between the slider and the clip.
           - label: Breakdown for this frame
             name: breakdown
             widget: object
@@ -162,6 +187,11 @@ collections:
             widget: string
             required: false
             hint: e.g. "Available from March 2027" — shown under your name with a green dot. Leave empty to hide.
+          - label: Currently
+            name: currently
+            widget: string
+            required: false
+            hint: Optional. What you're working on right now, shown on the About page.
           - { label: IMDb link, name: imdb, widget: string, required: false }
           - { label: LinkedIn link, name: linkedin, widget: string, required: false }
           - label: Website address
@@ -181,6 +211,11 @@ collections:
                 name: poster
                 widget: image
                 hint: The still shown before the reel plays, and behind your name at the top of the home page.
+              - label: Banner loop
+                name: loop
+                widget: file
+                required: false
+                hint: Optional short silent clip (MP4, 6–10 seconds, 1920 px wide, under 8 MB) that plays behind your name on the home page. The poster frame shows until it starts.
               - { label: Caption, name: caption, widget: string, required: false }
           - label: Projects in the top carousel
             name: heroProjects

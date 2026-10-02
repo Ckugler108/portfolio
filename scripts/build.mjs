@@ -42,7 +42,7 @@ for (const p of projects) {
   // passes. The frame itself is the "after". Kept internally as s.layers = [before, frame, ...passes].
   const layer = (x, label) => (x && x.src ? { label: x.label || label, src: img(x.src), alt: x.alt || '' } : null);
   p.stills = (p.stills || []).map((st) => {
-    const s = { ...st, src: img(st.src) };
+    const s = { ...st, src: img(st.src), video: st.video ? img(st.video) : '' };
     const b = st.breakdown || {};
     const before = layer(b.before, 'Plate');
     s.layers = before
@@ -60,8 +60,11 @@ if (site.reel) {
   if (yt) Object.assign(site.reel, { provider: 'youtube', id: yt[1] });
   else if (vm) Object.assign(site.reel, { provider: 'vimeo', id: vm[1] });
   if (site.reel.poster) site.reel.poster = img(site.reel.poster);
+  site.reel.loop = site.reel.loop ? img(site.reel.loop) : '';
   if (!site.reel.id) delete site.reel;
 }
+
+const keyStill = (p) => p.stills.find((s) => s.featured) || p.stills[0];
 
 // ---------- validation ----------
 const errors = [];
@@ -77,6 +80,17 @@ projects.forEach((p, i) => {
   if (!Array.isArray(p.stills) || !p.stills.length) errors.push(`${at}: needs at least one still`);
   for (const s of p.stills || []) if (!s.src || typeof s.alt !== 'string') errors.push(`${at}: every still needs "src" and "alt"`);
 });
+// Motion loops: short silent clips (MP4/H.264 or WebM) stored next to the images.
+const VIDEO_TYPES = { mp4: 'video/mp4', m4v: 'video/mp4', webm: 'video/webm' };
+const videos = [...projects.flatMap((p) => p.stills.map((s) => s.video)), site.reel?.loop].filter(Boolean);
+for (const v of videos) {
+  const ext = v.split('.').pop().toLowerCase();
+  if (!VIDEO_TYPES[ext]) errors.push(`images/${v}: loops must be .mp4 or .webm (export H.264 MP4 from your editor)`);
+  try {
+    const { size } = await fs.stat(path.join(ROOT, 'images', v));
+    if (size > 12e6) console.warn(`note: images/${v} is ${(size / 1e6).toFixed(1)} MB; aim for under 8 MB (1920 px wide, 6–10 s, ~6 Mbps)`);
+  } catch { errors.push(`video not found: images/${v}`); }
+}
 if (errors.length) {
   console.error('content errors:\n  ' + errors.join('\n  '));
   process.exit(1);
@@ -119,6 +133,24 @@ async function processImage(src) {
   return encoded;
 }
 
+// Project colour: the strongest hue in a frame, lifted to a bright, readable tint for a black page.
+// Near-grey frames get no tint (the page stays monochrome).
+async function tintOf(src) {
+  const { data } = await sharp(path.join(ROOT, 'images', src)).resize(48, 48, { fit: 'fill' }).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  let x = 0, y = 0, wsum = 0;
+  for (let i = 0; i < data.length; i += 3) {
+    const r = data[i] / 255, g = data[i + 1] / 255, b = data[i + 2] / 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), c = max - min;
+    if (c < 0.04) continue;
+    const h = max === r ? ((g - b) / c) % 6 : max === g ? (b - r) / c + 2 : (r - g) / c + 4;
+    const w = c * c; // favour strongly coloured pixels
+    x += Math.cos((h * Math.PI) / 3) * w; y += Math.sin((h * Math.PI) / 3) * w; wsum += w;
+  }
+  if (wsum / (data.length / 3) < 0.004) return null;
+  const hue = ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+  return `hsl(${Math.round(hue)} 72% 66%)`;
+}
+
 async function pool(items, n, fn) {
   const queue = [...items];
   let total = 0;
@@ -131,6 +163,8 @@ async function pool(items, n, fn) {
 const t0 = Date.now();
 const encodedCount = await pool(imageSrcs, 4, processImage);
 console.log(`images: ${imageSrcs.size} sources, ${encodedCount} files encoded (${((Date.now() - t0) / 1000).toFixed(1)}s)`);
+
+for (const p of projects) p.tint = p.tint || (await tintOf(keyStill(p).src));
 
 // Breakdown images are stacked for the wipe, so each must match its frame's shape.
 for (const p of projects) {
@@ -180,6 +214,8 @@ const icon = {
   grid: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>',
   list: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>',
   close: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  search: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+  pause: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>',
   play: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>',
   drag: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></svg>',
 };
@@ -196,7 +232,9 @@ for (const f of ['src/styles.css', ...(THEME ? [`src/themes/${THEME}.css`] : [])
 }
 
 const css = ((await fs.readFile(path.join(ROOT, 'src/styles.css'), 'utf8')) +
-  (THEME ? '\n' + (await fs.readFile(path.join(ROOT, `src/themes/${THEME}.css`), 'utf8')) : ''))
+  (THEME ? '\n' + (await fs.readFile(path.join(ROOT, `src/themes/${THEME}.css`), 'utf8')) : '') +
+  // Feature styles (project colour, motion loops, layer build, search) load last so they apply in every theme.
+  '\n' + (await fs.readFile(path.join(ROOT, 'src/features.css'), 'utf8')))
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/\s+/g, ' ')
   .replace(/\s*([{}:;,>])\s*/g, '$1')
@@ -209,7 +247,6 @@ const reel = site.reel;
 const reelUrl = reel && (reel.provider === 'youtube' ? `https://www.youtube.com/watch?v=${reel.id}` : `https://vimeo.com/${reel.id}`);
 
 // The frame that represents a project: the still marked "featured", else the first.
-const keyStill = (p) => p.stills.find((s) => s.featured) || p.stills[0];
 const category = (p) => p.category || 'Film';
 // Filter pills in a fixed order; types with no projects get no pill. Unknown types go last.
 const CAT_ORDER = ['Film', 'Series', 'Commercial', 'Game', 'Generative', 'Assets', 'Personal'];
@@ -217,7 +254,7 @@ const rank = (c) => (CAT_ORDER.includes(c) ? CAT_ORDER.indexOf(c) : CAT_ORDER.le
 const categories = [...new Set(projects.map(category))].sort((a, b) => rank(a) - rank(b));
 const projHref = (root, p) => dir(`${root}work/${p.slug}/`);
 
-function layout({ root, title, desc, body, ogImage, current }) {
+function layout({ root, title, desc, body, ogImage, current, tint }) {
   const fullTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site.tagline}`;
   const abs = site.url ? site.url.replace(/\/$/, '') + '/' : '';
   const nav = (href, label, key) => `<a href="${href}"${current === key ? ' aria-current="page"' : ''}>${label}</a>`;
@@ -237,7 +274,7 @@ ${['geist-sans-latin-600-normal', 'geist-sans-latin-400-normal', 'geist-mono-lat
 <script>document.documentElement.className='js'</script>
 <style>${css.replaceAll('{{ROOT}}', root)}</style>
 ${PREVIEW ? '' : `<script src="${root}assets/site.js" defer></script>\n`}</head>
-<body>
+<body${tint ? ` class="tinted" style="--tint:${tint}"` : ''}>
 <a class="skip" href="#main">Skip to content</a>
 <header class="topbar"><div class="wrap">
 <a class="logo" href="${root || './'}">${esc(site.name)}</a>
@@ -248,10 +285,18 @@ ${reel ? `<a href="${esc(reelUrl)}" data-reel-open>Reel</a>` : ''}
 ${nav(dir(`${root}about/`), 'About', 'about')}
 ${site.imdb ? `<a href="${esc(site.imdb)}">IMDb</a>` : ''}
 ${site.linkedin ? `<a href="${esc(site.linkedin)}">LinkedIn</a>` : ''}
+<button class="search-btn" type="button" data-search-open aria-label="Search projects" aria-keyshortcuts="Control+K Meta+K">${icon.search}<kbd>⌘K</kbd></button>
 <a class="btn btn-ghost btn-sm" href="mailto:${esc(site.email)}">Contact</a>
 </nav>
 </div></header>
 ${body}
+<dialog class="search" id="search" aria-label="Search projects">
+<div class="search-box">${icon.search}<input type="search" placeholder="Jump to a project…" aria-label="Search projects" autocomplete="off" spellcheck="false" aria-controls="search-list"><kbd>Esc</kbd></div>
+<ul class="search-list" id="search-list" role="listbox" aria-label="Projects">
+${projects.map((p) => `<li role="option" aria-selected="false" data-q="${esc([p.title, p.category, p.year, p.show, p.studio, p.role, ...p.tools].join(' ').toLowerCase())}"><a href="${projHref(root, p)}"${p.tint ? ` style="--tint:${p.tint}"` : ''}><span class="sw" aria-hidden="true"></span><span class="t">${esc(p.title)}</span><span class="m">${esc(category(p))} · ${esc(p.year)}</span></a></li>`).join('\n')}
+</ul>
+<p class="search-empty" hidden>No projects match.</p>
+</dialog>
 <footer class="foot"><div class="wrap">
 <a href="mailto:${esc(site.email)}">${esc(site.email)}</a>
 <span>${esc(site.location)}</span>
@@ -268,7 +313,7 @@ ${reel ? `<dialog id="reel-dialog" class="reel-modal" data-provider="${esc(reel.
 // Project tile: used by the home grid and the "More work" row on project pages.
 const tileSizes = '(min-width: 1560px) 354px, (min-width: 1100px) 23vw, (min-width: 768px) 31vw, 48vw';
 function tile(p, root) {
-  return `<a class="tile" href="${projHref(root, p)}">
+  return `<a class="tile"${p.tint ? ` style="--tint:${p.tint}"` : ''} href="${projHref(root, p)}">
 <span class="tile-img">${picture(keyStill(p).src, root, { alt: '', sizes: tileSizes })}</span>
 <span class="tile-title">${esc(p.title)}</span>
 <span class="tile-meta">${esc(p.year)} · ${esc(p.role)}</span>
@@ -288,7 +333,7 @@ function workSection(root, { pick = 0, level = 2 } = {}) {
   const cards = projects.map((p) => {
     const k = keyStill(p);
     const bd = bdOf(p);
-    return `<li data-cat="${esc(category(p))}"><a class="pcard" href="${projHref(root, p)}">
+    return `<li data-cat="${esc(category(p))}"${p.tint ? ` style="--tint:${p.tint}"` : ''}><a class="pcard" href="${projHref(root, p)}">
 <span class="pcard-img">${picture(k.src, root, { alt: '', sizes: '(min-width: 1100px) 460px, (min-width: 640px) 46vw, 100vw' })}<span class="tag">${esc(category(p))}</span><span class="pcard-title">${esc(p.title)}</span></span>
 <span class="pcard-body"><span class="pcard-by">${esc(p.role)} · ${esc(p.studio)}</span><span class="pcard-sum">${esc(summary(p))}</span></span>
 <span class="pcard-foot"><span class="end">${esc(p.year)}</span></span>
@@ -299,7 +344,7 @@ function workSection(root, { pick = 0, level = 2 } = {}) {
   const rows = projects.map((p) => {
     const k = keyStill(p);
     const bd = bdOf(p);
-    return `<li data-cat="${esc(category(p))}"><a class="prow" href="${projHref(root, p)}">
+    return `<li data-cat="${esc(category(p))}"${p.tint ? ` style="--tint:${p.tint}"` : ''}><a class="prow" href="${projHref(root, p)}">
 <span class="prow-media"><span class="prow-after">${picture(k.src, root, { alt: '', sizes: '(min-width: 768px) 352px, 100vw' })}</span></span>
 <span class="prow-info">
 <span class="prow-top"><span class="prow-title">${esc(p.title)}</span><span class="prow-role">${esc(p.role)} · ${esc(category(p))}</span><span class="box">${esc(p.year)}</span></span>
@@ -354,6 +399,7 @@ function indexPage() {
   const sizesHero = '(min-width: 1560px) 1464px, calc(100vw - 32px)';
   slides.push(`<article class="slide is-on" aria-roledescription="slide" aria-label="1 of ${total}">
 ${picture(reel?.poster || keyStill(projects[0]).src, root, { alt: '', sizes: sizesHero, eager: true })}
+${reel?.loop ? loop(reel.loop, root, { label: 'Showreel excerpt', cls: 'loop hero-loop' }) : ''}
 <div class="slide-body">
 <h1 class="hero-title">${esc(site.name)}</h1>
 <p class="sub">${esc(site.tagline)}</p>
@@ -389,6 +435,39 @@ ${workSection(root, { pick: 6, level: 2 })}
   return layout({ root, body, ogImage: reel?.poster, current: 'home' });
 }
 
+// A motion loop: muted, looping, no controls; site.js plays it only while it is on screen and
+// never automatically for people who prefer reduced motion. The pause button is always there.
+function loop(src, root, { poster = '', label = 'Motion loop', hidden = false, cls = 'loop' } = {}) {
+  const type = VIDEO_TYPES[src.split('.').pop().toLowerCase()];
+  return `<div class="${cls}" data-loop${hidden ? ' hidden' : ''}>
+<video muted loop playsinline preload="none"${poster ? ` poster="${poster}"` : ''} aria-label="${esc(label)}"><source src="${root}video/${src}" type="${type}"></video>
+<button class="loop-btn" type="button" data-loop-toggle aria-label="Pause loop">${icon.pause}${icon.play}</button>
+<span class="readout ro-r" aria-hidden="true" data-tc>TC 00:00:00:00</span>
+</div>`;
+}
+
+// The brief: three short lines a supervisor can skim (the problem, the approach, the result).
+function brief(p) {
+  const b = p.brief || {};
+  const rows = [['Problem', b.problem], ['Approach', b.approach], ['Result', b.result]].filter(([, v]) => v);
+  if (!rows.length) return '';
+  return `<section class="brief" aria-labelledby="brief-h"><h2 id="brief-h" class="label">Brief</h2><dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${/^TODO/.test(v) ? '<span class="todo">TODO</span>' + esc(v.replace(/^TODO:?\s*/, '')) : esc(v)}</dd>`).join('')}</dl></section>\n`;
+}
+
+// "How it was made": what share of the frame was generated, painted, rendered, composited…
+// Shown as one stacked bar with a legend, so generative work is upfront about the human part.
+function madeWith(p) {
+  const parts = (p.madeWith || []).filter((m) => m.label && Number(m.percent) > 0);
+  if (!parts.length) return '';
+  const total = parts.reduce((a, m) => a + Number(m.percent), 0);
+  const shades = [1, 0.62, 0.38, 0.22, 0.12];
+  const seg = parts.map((m, j) => ({ ...m, w: (Number(m.percent) / total) * 100, o: shades[j % shades.length] }));
+  return `<section class="made" aria-labelledby="made-h"><h2 id="made-h" class="label">How it was made</h2>
+<div class="made-bar" aria-hidden="true">${seg.map((m) => `<span style="width:${m.w.toFixed(2)}%;--o:${m.o}"></span>`).join('')}</div>
+<ul class="made-key">${seg.map((m) => `<li><span class="sw" style="--o:${m.o}" aria-hidden="true"></span>${esc(m.label)}<span class="pc">${Math.round(m.w)}%</span></li>`).join('')}</ul>
+</section>\n`;
+}
+
 // ---------- project ----------
 function projectPage(p, i) {
   const root = '../../';
@@ -410,6 +489,7 @@ function projectPage(p, i) {
       return `<div class="frame-panel${k === 0 ? ' is-on' : ''}" data-panel="${k}">
 <div class="stage"><div class="fit" ${fit}>
 <a class="still" href="${largestJpg(st.src, root)}" aria-label="Open frame ${k + 1} full size" data-lb-proxy="${k}">${picture(st.src, root, { alt: st.alt, sizes: sizesView, eager: k === 0 })}${info}</a>
+${st.video ? loop(st.video, root, { poster: largestJpg(st.src, root), label: `Motion loop of frame ${k + 1}` }) : ''}
 </div></div>
 <div class="wrap panel-bar">${st.caption ? `<span class="hint">${esc(st.caption)}</span>` : ''}${full}</div>
 </div>`;
@@ -423,16 +503,38 @@ ${L.map((l, j) => `<figure class="wipe-layer" data-label="${esc(l.label)}">${pic
 <div class="wipe-handle" role="slider" tabindex="0" aria-label="Wipe position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span class="wipe-knob">${icon.drag}</span></div>
 ${info}<span class="readout ro-r" aria-hidden="true" data-readout>Wipe 050%</span>
 </div>
+${st.video ? loop(st.video, root, { poster: largestJpg(st.src, root), label: `Motion loop of frame ${k + 1}`, hidden: true }) : ''}
 </div></div>
 <div class="wrap panel-bar">
 ${passes ? `<div class="tabs" role="group" aria-label="Compare ${esc(L[0].label)} with">${L.slice(1).map((l, j) => `<button type="button" data-layer data-i="${j + 1}" aria-pressed="${j === 0}">${esc(l.label)}</button>`).join('')}</div>` : ''}
-<span class="hint wipe-hint">Drag to compare</span>${full}
+${st.video ? `<button class="loop-switch" type="button" aria-pressed="false" data-loop-switch>${icon.play}Loop</button>` : ''}<span class="hint wipe-hint">Drag to compare</span>${full}
 </div>
 <p class="vh" aria-live="polite" data-live></p>
 </div>`;
   };
 
-  const body = `<main id="main" class="p-layout">
+  // Layer build-up: a frame with three or more breakdown layers also gets a section that stacks the
+  // layers in order (plate, passes…, final) as the viewer scrolls. Without JS it is a list of figures.
+  const buildStill = p.stills.findIndex((st) => st.layers.length > 2);
+  let build = '';
+  if (buildStill > -1) {
+    const st = p.stills[buildStill];
+    const [before, fin, ...passes] = st.layers;
+    const seq = [before, ...passes, fin];
+    const m = manifest[st.src];
+    build = `<section class="section wrap build" aria-labelledby="build-h" data-build style="--n:${seq.length};--arn:${(m.width / m.height).toFixed(4)}">
+<div class="section-head"><h2 id="build-h">Build-up</h2><span class="count">Frame ${pad(buildStill + 1)} · ${seq.length} layers · scroll</span></div>
+<div class="build-track"><div class="build-pin">
+<div class="build-stage">
+${seq.map((l, j) => `<figure class="build-layer" data-i="${j}">${picture(l.src, root, { alt: l.alt || l.label, sizes: '(min-width: 1024px) 70vw, 100vw' })}<figcaption>${pad(j + 1)} ${esc(l.label)}</figcaption></figure>`).join('\n')}
+<span class="readout ro-l" aria-hidden="true" data-build-readout>Layer 01/${pad(seq.length)} · ${esc(seq[0].label)}</span>
+</div>
+<ol class="build-steps" aria-hidden="true">${seq.map((l, j) => `<li${j === 0 ? ' class="is-on"' : ''}><span class="n">${pad(j + 1)}</span>${esc(l.label)}<span class="bar"><span></span></span></li>`).join('')}</ol>
+</div></div>
+</section>`;
+  }
+
+  const body = `<main id="main"><div class="p-layout">
 <header class="p-head">
 <p class="kicker">${esc(category(p))} · ${esc(p.year)}</p>
 <h1 class="p-title">${esc(p.title)}</h1>
@@ -446,11 +548,13 @@ ${p.stills.map(panel).join('\n')}
 </section>
 <div class="p-desc">
 <ul class="chips" aria-label="Tools">${p.tools.map((t) => `<li class="chip">${esc(t)}</li>`).join('')}</ul>
-<section class="p-what" aria-labelledby="what-h">
+${brief(p)}${madeWith(p)}<section class="p-what" aria-labelledby="what-h">
 <h2 id="what-h" class="label">What I did</h2>
 <div class="prose">${description(p.description)}</div>
 </section>
 </div>
+</div>
+${build}
 </main>
 ${more.length ? `<section class="section wrap more-work" aria-labelledby="more-h">
 <div class="section-head"><h2 id="more-h">More work</h2></div>
@@ -464,7 +568,7 @@ ${more.map((o) => `<li>${tile(o, root)}</li>`).join('\n')}
 <div class="lb-bar"><button class="round-btn" type="button" data-lb-prev aria-label="Previous frame">${icon.left}</button><span data-lb-count></span><button class="round-btn" type="button" data-lb-next aria-label="Next frame">${icon.right}</button></div>
 </dialog>`;
   const desc = `${p.title} (${p.year}) — ${p.role}, ${p.studio}. ${site.name}.`;
-  return layout({ root, title: p.title, desc, body, ogImage: keyStill(p).src, current: 'work' });
+  return layout({ root, title: p.title, desc, body, ogImage: keyStill(p).src, current: 'work', tint: p.tint });
 }
 
 // ---------- about ----------
@@ -484,6 +588,7 @@ function aboutPage() {
   const contact = [
     ['Email', `<a href="mailto:${esc(site.email)}">${esc(site.email)}</a>`],
     ['Based', esc(site.location)],
+    site.currently && ['Currently', /^TODO/.test(site.currently) ? `<span class="todo">TODO</span>${esc(site.currently.replace(/^TODO:?\s*/, ''))}` : esc(site.currently)],
     site.availability && ['Status', /^TODO/.test(site.availability) ? `<span class="todo">TODO</span>${esc(site.availability.replace(/^TODO:?\s*/, ''))}` : esc(site.availability)],
     site.imdb && ['IMDb', `<a href="${esc(site.imdb)}">Profile</a>`],
     site.linkedin && ['LinkedIn', `<a href="${esc(site.linkedin)}">Profile</a>`],
@@ -541,6 +646,11 @@ await Promise.all(projects.map((p, i) => write(`work/${p.slug}/index.html`, proj
 await fs.rm(path.join(DIST, 'assets/fonts'), { recursive: true, force: true });
 await fs.mkdir(path.join(DIST, 'assets/fonts'), { recursive: true });
 await fs.copyFile(path.join(ROOT, 'src/site.js'), path.join(DIST, 'assets/site.js'));
+for (const v of videos) {
+  const out = path.join(DIST, 'video', v);
+  await fs.mkdir(path.dirname(out), { recursive: true });
+  if (await newer(path.join(ROOT, 'images', v), out)) await fs.copyFile(path.join(ROOT, 'images', v), out);
+}
 for (const d of ['src/fonts'])
   for (const f of await fs.readdir(path.join(ROOT, d)))
     await fs.copyFile(path.join(ROOT, d, f), path.join(DIST, 'assets/fonts', f));

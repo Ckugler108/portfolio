@@ -10,9 +10,12 @@ Open **`https://<your-site>/admin`** once the site is live on Netlify.
 2. **Projects** lists every project. Open one, or press **New Project**, and fill in the form:
    - **Final frames**: upload your best frames (full resolution, JPG or PNG, at least 2400 px wide if you have it). Tick **Use as the main frame** on your strongest one; it's used on the home page and the project's cards.
    - **Breakdown for this frame** (optional, inside each frame): upload a **Before**, usually the plate. The frame itself is the after, and the project page shows a before/after slider for it. Add **Other passes** such as Layout or CG render if you want visitors to be able to swap them in. Every breakdown image must be exactly the same size in pixels as its frame.
+   - **Motion loop** (optional, inside each frame): a short silent clip of the shot. It plays on loop on the project page. If the frame also has a breakdown, a **Loop** button switches between the slider and the clip. Export H.264 MP4, 1920 px wide, 6–10 seconds, under 8 MB, with no audio. A clip that starts and ends on the same frame loops without a jump.
+   - **Brief** (optional): three short lines (Problem, Approach, Result) shown above "What I did".
+   - **How it was made** (optional, recommended for Generative work): rough shares such as Generated 40, Paint-over 35, Comp 25. They show as one bar.
    - **What I did**: 3–6 plain sentences. Delete the `TODO:` placeholder text.
    - **Order**: lower numbers appear first on the home page.
-3. **Site settings** holds your name, one-line description, email, links, reel link (paste the Vimeo or YouTube URL), poster frame, bio, credits and software.
+3. **Site settings** holds your name, one-line description, email, links, the reel link (paste the Vimeo or YouTube URL), the poster frame, an optional **Banner loop** (a short silent MP4 that plays behind your name on the home page), a **Currently** line for the About page, your bio, credits and software.
 4. Press **Save**. That commits the change to GitHub, and Netlify rebuilds the site in 1–2 minutes.
 
 If a build fails (for example, breakdown images of different sizes), the live site keeps the last working version, and Netlify's deploy log names the file and the problem.
@@ -39,7 +42,8 @@ content/
 images/                    source images, any size (the editor uploads here)
 src/
   styles.css               all styles (inlined into each page at build time)
-  site.js                  carousel, rows, filters, reel pop-up, lightbox, breakdown slider
+  site.js                  carousel, rows, filters, reel pop-up, lightbox, breakdown slider, layer build-up, loops, search
+  features.css             project colour, layer build-up, motion loops, brief, search (loaded after the theme)
   themes/mono.css          the default look (monochrome, square, numbered); square.css is an alternative
   fonts/                   self-hosted Geist Sans and Geist Mono (woff2)
 scripts/
@@ -90,6 +94,8 @@ This is what the editor writes. You can also edit these files directly on GitHub
 
 - **Site settings**: name, email, IMDb and LinkedIn links, reel link (currently a public Vimeo demo video), poster, bio, availability, website address.
 - **Projects**: every studio is `Studio TBC`, and the roles, tools and descriptions are stand-ins. Years and distributors are the real release details of each production. Check them against your own credits.
+- **Loops**: the banner loop and the Rings of Power frame-1 loop are generated stand-ins.
+- **Brief / How it was made / Currently**: the Rings of Power brief, the Generative Worlds bar and the About page "Currently" line are TODO examples.
 - **Images**: all frames are generated stand-ins. Replace them through the editor, or overwrite a file on GitHub with the same name.
 
 ## How the site is laid out
@@ -104,5 +110,9 @@ This is what the editor writes. You can also edit these files directly on GitHub
   - **Slider demo**: the first time a project's before/after slider scrolls into view, it sweeps once to show that it moves. It stops as soon as the viewer touches it, and is skipped for people who have set their device to reduce motion.
   - **Frame readouts**: each frame on a project page shows a small label with its frame number, aspect ratio and pixel size (for example `FRAME 01/02 · 2.39:1 · 2400×1004`). The before/after slider also shows its position (`WIPE 050%`).
   - **Fade-in**: images fade in as they load.
+- **Project colour**: the build picks the strongest colour in each project's main frame. It is used on that project's page (the slider handle, active buttons, the type line, a faint glow at the top) and as the hover colour of its card and row. Frames that are nearly grey get no colour. To force one, add `"tint": "hsl(30 72% 66%)"` to the project file.
+- **Build-up**: a frame with three or more breakdown layers also gets a Build-up section under the description. The stage stays on screen while the layers wipe in one after another as you scroll: Plate, then each pass, then Final.
+- **Motion loops**: loops start only once the page has loaded and only while they are on screen. They never start by themselves for people who prefer reduced motion or have Data Saver on. Every loop has a pause button, and project loops show a running timecode. The two clips in the repo (`images/site/reel-loop.webm`, `images/rings-of-power/final-01-loop.webm`) are stand-ins; replace or remove them.
+- **Quick search**: press Cmd+K (Ctrl+K on Windows) or `/` on any page, or use the search button in the top bar, to jump to a project by title, type, year, studio or tool.
 - **Images**: 320/640/1024/1600/2400 px in AVIF, WebP and JPG via `<picture>`, with `width`/`height` always set (no layout shift).
 - **Lighthouse** (mobile, local server): 99–100 on Performance and 100 on Accessibility, Best Practices and SEO.

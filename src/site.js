@@ -297,4 +297,130 @@
       io.observe(wipe);
     }
   }
+
+  // ---------- Layer build-up: layers wipe in one after another as the page scrolls ----------
+  const builds = [...document.querySelectorAll('[data-build]')].map((el) => ({
+    track: el.querySelector('.build-track'),
+    pin: el.querySelector('.build-pin'),
+    layers: [...el.querySelectorAll('.build-layer')],
+    steps: [...el.querySelectorAll('.build-steps li')],
+    readout: el.querySelector('[data-build-readout]'),
+    last: -1,
+  }));
+  if (builds.length) {
+    const clamp = (v) => Math.max(0, Math.min(1, v));
+    const update = () => {
+      for (const b of builds) {
+        const r = b.track.getBoundingClientRect();
+        const travel = r.height - b.pin.offsetHeight;
+        const stick = parseFloat(getComputedStyle(b.pin).top) || 0;
+        const t = clamp((stick - r.top) / (travel || 1)) * (b.layers.length - 1);
+        let on = 0;
+        b.layers.forEach((l, i) => {
+          const p = i === 0 ? 1 : clamp(t - (i - 1));
+          l.style.setProperty('--p', p.toFixed(4));
+          l.style.setProperty('--edge', p > 0 && p < 1 ? '1' : '0');
+          b.steps[i].style.setProperty('--p', p.toFixed(4));
+          if (p >= 0.5) on = i;
+        });
+        if (on !== b.last) {
+          b.last = on;
+          b.steps.forEach((s, i) => s.classList.toggle('is-on', i === on));
+          const pad = (n) => String(n).padStart(2, '0');
+          b.readout.textContent = `Layer ${pad(on + 1)}/${pad(b.layers.length)} · ${b.layers[on].querySelector('figcaption').textContent.replace(/^\d+ /, '')}`;
+        }
+      }
+    };
+    let queued = false;
+    const onScroll = () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; update(); }); } };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
+  }
+
+  // ---------- Motion loops ----------
+  // A loop plays only while it is visible, switched on and in the active slide or frame. Nothing
+  // plays by itself for people who prefer reduced motion or have Data Saver on; the button plays it.
+  const saveData = navigator.connection && navigator.connection.saveData;
+  const loops = [...document.querySelectorAll('[data-loop]')].map((el) => {
+    const L = { el, video: el.querySelector('video'), btn: el.querySelector('[data-loop-toggle]'), tc: el.querySelector('[data-tc]'), seen: false, paused: reduced || saveData };
+    const pad = (n) => String(n).padStart(2, '0');
+    const tick = () => {
+      const t = L.video.currentTime;
+      L.tc.textContent = `TC 00:${pad(Math.floor(t / 60))}:${pad(Math.floor(t % 60))}:${pad(Math.floor((t % 1) * 24))}`;
+      if (!L.video.paused) (L.video.requestVideoFrameCallback ? L.video.requestVideoFrameCallback(tick) : requestAnimationFrame(tick));
+    };
+    L.video.addEventListener('playing', () => { el.classList.add('is-playing'); tick(); });
+    L.video.addEventListener('pause', () => el.classList.remove('is-playing'));
+    L.sync = () => {
+      const active = L.seen && !el.hidden && !L.paused && !el.closest('.slide:not(.is-on), .frame-panel:not(.is-on)');
+      if (active && L.video.paused) L.video.play().catch(() => {});
+      else if (!active && !L.video.paused) L.video.pause();
+      L.btn.setAttribute('aria-label', L.paused ? 'Play loop' : 'Pause loop');
+      el.classList.toggle('is-paused', L.paused);
+    };
+    L.btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); L.paused = !L.paused; L.sync(); });
+    return L;
+  });
+  if (loops.length) {
+    const io = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+      for (const en of entries) { const L = loops.find((x) => x.el === en.target); L.seen = en.isIntersecting; L.sync(); }
+    }, { threshold: 0.4 }) : null;
+    const start = () => loops.forEach((L) => { if (io) io.observe(L.el); else { L.seen = true; L.sync(); } });
+    // Wait for the page (and its first image) to finish loading so loops never slow the first paint.
+    if (document.readyState === 'complete') start(); else window.addEventListener('load', start);
+    // Re-check when a slide or a frame changes.
+    const mo = new MutationObserver(() => loops.forEach((L) => L.sync()));
+    document.querySelectorAll('.slide, .frame-panel').forEach((n) => mo.observe(n, { attributes: true, attributeFilter: ['class'] }));
+    // On a breakdown frame, the Loop button swaps the slider for the moving shot.
+    for (const sw of document.querySelectorAll('[data-loop-switch]')) {
+      const panel = sw.closest('.frame-panel');
+      const L = loops.find((x) => panel.contains(x.el));
+      sw.addEventListener('click', () => {
+        const on = sw.getAttribute('aria-pressed') !== 'true';
+        sw.setAttribute('aria-pressed', String(on));
+        L.el.hidden = !on;
+        if (on) L.paused = false;
+        L.sync();
+      });
+    }
+  }
+
+  // ---------- Quick search: Cmd/Ctrl+K (or /) opens a project jump list ----------
+  const search = document.getElementById('search');
+  if (search && search.showModal) {
+    const input = search.querySelector('input');
+    const items = [...search.querySelectorAll('[role="option"]')];
+    const empty = search.querySelector('.search-empty');
+    const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+    if (!mac) document.querySelectorAll('.search-btn kbd').forEach((k) => { k.textContent = 'Ctrl K'; });
+    let sel = 0;
+    const visible = () => items.filter((li) => !li.hidden);
+    const mark = () => {
+      const v = visible();
+      sel = Math.max(0, Math.min(sel, v.length - 1));
+      items.forEach((li) => li.setAttribute('aria-selected', 'false'));
+      if (v[sel]) { v[sel].setAttribute('aria-selected', 'true'); v[sel].scrollIntoView({ block: 'nearest' }); }
+    };
+    const filter = () => {
+      const words = input.value.toLowerCase().split(/\s+/).filter(Boolean);
+      items.forEach((li) => { li.hidden = !words.every((w) => li.dataset.q.includes(w)); });
+      empty.hidden = visible().length > 0;
+      sel = 0; mark();
+    };
+    const open = () => { input.value = ''; filter(); search.showModal(); input.focus(); };
+    document.querySelectorAll('[data-search-open]').forEach((b) => b.addEventListener('click', open));
+    document.addEventListener('keydown', (e) => {
+      const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) || document.activeElement.isContentEditable;
+      if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || (e.key === '/' && !typing && !search.open)) { e.preventDefault(); search.open ? search.close() : open(); }
+    });
+    input.addEventListener('input', filter);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') { sel++; mark(); e.preventDefault(); }
+      else if (e.key === 'ArrowUp') { sel--; mark(); e.preventDefault(); }
+      else if (e.key === 'Enter') { const a = visible()[sel]?.querySelector('a'); if (a) { e.preventDefault(); location.href = a.href; } }
+    });
+    items.forEach((li) => li.addEventListener('pointermove', () => { sel = visible().indexOf(li); mark(); }));
+    search.addEventListener('click', (e) => { if (e.target === search) search.close(); });
+  }
 })();

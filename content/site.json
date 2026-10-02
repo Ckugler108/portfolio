@@ -10,13 +10,15 @@
   "reel": {
     "url": "https://youtu.be/pKRwBpkZCDc",
     "poster": "/images/site/reel-poster.jpg",
-    "caption": "Showreel"
+    "caption": "Showreel",
+    "loop": "/images/site/reel-loop.webm"
   },
   "bio": [
     "TODO: Two or three plain sentences. What you do, how long you have done it, where.",
     "TODO: What kind of shots you are usually handed, and which part of the pipeline you own."
   ],
   "availability": "TODO: Available from Month YYYY. Remote or Portland.",
+  "currently": "TODO: What you're working on now, e.g. Matte painting on an unannounced feature.",
   "credits": [
     {
       "year": 2025,

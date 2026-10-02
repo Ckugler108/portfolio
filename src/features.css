@@ -1,0 +1,104 @@
+/* ===== Project colour =====
+   Each project gets a tint taken from its main frame at build time (--tint, set on the project
+   page's <body> and on each card, row and tile). Pages without one fall back to the accent. */
+:root { --tint: var(--accent); }
+.tinted { background: radial-gradient(120% 560px at 70% -160px, color-mix(in srgb, var(--tint) 16%, transparent), transparent 70%) no-repeat, var(--bg); }
+.tinted .p-head .kicker { color: var(--tint); }
+.tinted .wipe-handle::before { background: var(--tint); }
+.tinted .wipe-knob { background: var(--tint); color: #0b0b0b; }
+.tinted .thumb[aria-pressed="true"] { outline-color: var(--tint); }
+.tinted .panel-bar .tabs button[aria-pressed="true"] { background: var(--tint); color: #0b0b0b; }
+.tinted .chip { border-color: color-mix(in srgb, var(--tint) 35%, var(--line)); }
+.prow, .pcard, .tile-img { transition: border-color 150ms ease; }
+.prow:hover, .pcard:hover, .tile:hover .tile-img { border-color: color-mix(in srgb, var(--tint) 70%, transparent); }
+.prow:hover .prow-go { color: var(--tint); }
+.prow:hover .prow-title::before, .tile:hover .tile-title::before { color: var(--tint); }
+
+/* ===== Layer build-up =====
+   Without JS: the layers are a simple grid of captioned figures. With JS the stage pins under the
+   top bar and each layer wipes in over the last as the viewer scrolls through the track. */
+.build-stage { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.build-layer img { width: 100%; height: auto; }
+.build-layer figcaption { padding-top: 8px; font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.build .readout, .build-steps { display: none; }
+.js .build-track { height: calc(100svh + (var(--n) - 1) * 70svh); }
+.js .build-pin { position: sticky; top: 57px; height: calc(100svh - 57px); display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 32px; align-items: center; }
+.js .build-stage { display: block; position: relative; aspect-ratio: var(--arn); width: min(100%, calc((100svh - 57px - 64px) * var(--arn))); justify-self: center; background: #000; border: 1px solid var(--line); overflow: hidden; }
+.js .build-layer { position: absolute; inset: 0; clip-path: inset(0 calc((1 - var(--p, 0)) * 100%) 0 0); }
+.js .build-layer[data-i="0"] { clip-path: none; }
+.js .build-layer img { width: 100%; height: 100%; object-fit: cover; }
+.js .build-layer figcaption { display: none; }
+.js .build-layer::after { content: ""; position: absolute; top: 0; bottom: 0; left: calc(var(--p, 0) * 100%); width: 1px; background: var(--tint); opacity: var(--edge, 0); }
+.js .build .readout { display: block; }
+.js .build-steps { display: grid; gap: 14px; list-style: none; padding: 0; margin: 0; font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--dim); }
+.build-steps li { display: grid; grid-template-columns: 28px 1fr; row-gap: 6px; transition: color 150ms ease; }
+.build-steps .n { color: var(--dim); }
+.build-steps .bar { grid-column: 2; height: 1px; background: var(--line); }
+.build-steps .bar span { display: block; height: 100%; width: calc(var(--p, 0) * 100%); background: var(--tint); }
+.build-steps li.is-on { color: var(--fg); }
+@media (max-width: 1023px) {
+  .js .build-pin { grid-template-columns: minmax(0, 1fr); align-content: center; gap: 16px; }
+  .js .build-stage { width: min(100%, calc((100svh - 57px - 120px) * var(--arn))); }
+  .js .build-steps { grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 10px; font-size: 11px; }
+  .build-steps li { grid-template-columns: 1fr; }
+  .build-steps .n { display: none; }
+  .build-steps .bar { grid-column: 1; }
+  .build-steps li { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+
+/* ===== Motion loops ===== */
+.loop { position: absolute; inset: 0; z-index: 3; background: #000; pointer-events: none; }
+.loop[hidden], html:not(.js) .loop { display: none; }
+.loop video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fit { position: relative; }
+.loop .loop-btn { pointer-events: auto; position: absolute; z-index: 2; left: 10px; top: 10px; width: 30px; height: 30px; display: grid; place-items: center; background: rgba(0, 0, 0, .72); color: #fff; border: 1px solid rgba(255, 255, 255, .25); }
+.loop-btn:hover { border-color: #fff; }
+.loop-btn svg + svg, .loop.is-paused .loop-btn svg:first-child { display: none; }
+.loop.is-paused .loop-btn svg + svg { display: block; }
+.loop .readout { opacity: 0; transition: opacity 200ms ease; }
+.loop.is-playing .readout { opacity: 1; }
+/* the home banner: the clip fades in over the poster once it is actually playing */
+.hero-loop { z-index: auto; background: transparent; }
+.hero-loop video { opacity: 0; transition: opacity 800ms ease; }
+.hero-loop.is-playing video { opacity: 1; }
+.hero-loop .loop-btn { left: auto; top: auto; right: 16px; bottom: 16px; z-index: 3; }
+.hero-loop .readout { display: none; }
+.loop-switch { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border: 1px solid var(--line); font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); white-space: nowrap; flex: none; }
+.loop-switch:hover { color: var(--fg); border-color: var(--fg); }
+.loop-switch[aria-pressed="true"] { background: var(--tint); border-color: var(--tint); color: #0b0b0b; }
+
+/* ===== Brief and "How it was made" ===== */
+.brief, .made { margin-top: 24px; }
+.brief dl { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 10px 12px; margin: 0; }
+.brief dt { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); padding-top: 3px; }
+.brief dd { margin: 0; font-size: 15px; line-height: 1.45; }
+.made-bar { display: flex; height: 8px; gap: 2px; }
+.made-bar span { background: color-mix(in srgb, var(--tint) calc(var(--o) * 100%), #262626); }
+.made-key { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 6px; font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.made-key li { display: flex; align-items: center; gap: 10px; }
+.made-key .sw { width: 10px; height: 10px; background: color-mix(in srgb, var(--tint) calc(var(--o) * 100%), #262626); }
+.made-key .pc { margin-left: auto; color: var(--fg); font-variant-numeric: tabular-nums; }
+
+/* ===== Quick search (Cmd/Ctrl+K) ===== */
+.search-btn { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border: 1px solid var(--line); color: var(--muted); }
+.search-btn:hover { color: var(--fg); border-color: var(--fg); }
+.search-btn kbd, .search-box kbd { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; }
+html:not(.js) .search-btn { display: none; }
+.search { width: min(560px, calc(100vw - 32px)); max-height: min(520px, calc(100svh - 120px)); margin: 12vh auto auto; padding: 0; border: 1px solid #3a3a3a; background: var(--surface); color: var(--fg); overflow: hidden; }
+.search[open] { display: flex; flex-direction: column; }
+.search::backdrop { background: rgba(0, 0, 0, .6); backdrop-filter: blur(2px); }
+.search-box { display: flex; align-items: center; gap: 10px; padding: 0 14px; border-bottom: 1px solid var(--line); color: var(--dim); }
+.search-box input { flex: 1; height: 52px; background: none; border: 0; outline: none; color: var(--fg); font: inherit; font-size: 16px; }
+.search-box input::-webkit-search-cancel-button { display: none; }
+.search-list { list-style: none; margin: 0; padding: 6px; overflow-y: auto; }
+.search-list a { display: flex; align-items: center; gap: 12px; padding: 10px; }
+.search-list .sw { width: 8px; height: 8px; background: var(--tint); flex: none; }
+.search-list .t { font-weight: 500; }
+.search-list .m { margin-left: auto; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--dim); white-space: nowrap; }
+.search-list [aria-selected="true"] a { background: #1f1f1f; }
+.search-empty { padding: 16px; color: var(--dim); font-size: 14px; }
+@media (max-width: 767px) {
+  .search-btn { width: 100%; justify-content: flex-start; height: auto; padding: 12px 0; border: 0; font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+  .search-btn kbd { display: none; }
+  .search-btn::after { content: "Search"; }
+}
